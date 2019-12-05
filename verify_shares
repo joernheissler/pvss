@@ -1,0 +1,17 @@
+#!/usr/bin/python3.8
+
+from sys import argv
+from pvss import SystemParameters, compute_challenge, SharedSecret
+
+# XXX verify pubkeys too
+if len(argv) != 3:
+    exit(f"Usage: {argv[0]} <params_file> <shares_file>")
+
+with open(argv[1], "rb") as fp:
+    params = SystemParameters.decode(fp.read())
+
+
+with open(argv[2], "rb") as fp:
+    shared_secret = SharedSecret.decode(params, fp.read())
+
+shared_secret.verify()

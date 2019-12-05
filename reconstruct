@@ -1,0 +1,37 @@
+#!/usr/bin/python3.8
+
+from sys import argv
+from fractions import Fraction
+from functools import reduce
+from operator import mul
+
+from pvss import SystemParameters, SharedSecret, DecryptedShare, prod, Secret
+
+
+if len(argv) < 5:
+    exit(f"Usage: {argv[0]} <params_file> <shares_file> <out_secret> <share_files...>")
+
+
+with open(argv[1], "rb") as fp:
+    params = SystemParameters.decode(fp.read())
+
+with open(argv[2], "rb") as fp:
+    shared_secret = SharedSecret.decode(params, fp.read())
+
+shared_secret.verify()
+
+out_secret_file = argv[3]
+
+shares = []
+for fname in argv[4:]:
+    with open(fname, "rb") as fp:
+        shares.append(DecryptedShare.decode(params, shared_secret, fp.read()))
+        # XXX verify
+
+secret = prod(
+    s0.share ** reduce(mul, (Fraction(s1.idx, s1.idx - s0.idx) for s1 in shares if s0.idx != s1.idx))
+    for s0 in shares
+)
+
+with open(out_secret_file, "wb") as fp:
+    fp.write(Secret.create(params, secret).der)

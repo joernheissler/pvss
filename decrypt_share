@@ -1,0 +1,34 @@
+#!/usr/bin/python3.8
+
+from sys import argv
+from pvss import SystemParameters, compute_challenge, SharedSecret, PrivateKey, DecryptedShare
+
+
+if len(argv) != 5:
+    exit(f"Usage: {argv[0]} <params_file> <shares_file> <priv_key_file> <out_share>")
+
+
+with open(argv[1], "rb") as fp:
+    params = SystemParameters.decode(fp.read())
+
+with open(argv[2], "rb") as fp:
+    shared_secret = SharedSecret.decode(params, fp.read())
+
+with open(argv[3], "rb") as fp:
+    priv = PrivateKey.decode(params, fp.read())
+
+shared_secret.verify()
+
+
+for idx, share in enumerate(shared_secret.shares, 1):
+    if share.pub == priv.pub(share.pub.name):
+        value = share.share ** (priv.priv ** -1)
+        break
+else:
+    raise ValueError("No matching pubkey found")
+
+# XXX re-encrypt, prove, verify, decrypt
+
+with open(argv[4], "wb") as fp:
+    fp.write(DecryptedShare.create(params, shared_secret, idx, value).der)
+

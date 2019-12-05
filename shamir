@@ -1,0 +1,42 @@
+#!/usr/bin/python3.8
+
+from random import randrange as rand, sample
+from functools import reduce
+from operator import mul
+from fractions import Fraction
+
+from groups import Zq, Qr
+
+
+G = Zq(999959)
+n = 500
+t = 400
+
+
+def main():
+    poly = [G.rand for __ in range(t)]
+    print("Secret:", poly[0])
+
+    points = [
+        sum(
+            poly[j] * (i ** j)
+            for j in range(t)
+        )
+        for i in range(1, n + 1)
+    ]
+    #print("Points:", *points)
+
+    chosen = sample(list(enumerate(points, 1)), t)
+    #print("Chosen:", chosen)
+
+    secret = sum(
+        share * reduce(mul, (Fraction(m, m - j) for m, __ in chosen if j != m))
+        for j, share in chosen
+    )
+
+    print("Secret:", secret)
+
+    if secret != poly[0]:
+        raise ValueError("mismatch")
+
+main()

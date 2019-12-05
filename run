@@ -1,0 +1,17 @@
+#!/bin/sh -e
+
+mkdir -p var var/pub var/priv var/decrypted
+
+./genparams      var/params.der 
+./user_createkey var/params.der Alice var/priv/alice.priv.der var/pub/alice.pub.der
+./user_createkey var/params.der Bobby var/priv/bobby.priv.der var/pub/bobby.pub.der
+./user_createkey var/params.der Chris var/priv/chris.priv.der var/pub/chris.pub.der
+./user_createkey var/params.der David var/priv/david.priv.der var/pub/david.pub.der
+./user_createkey var/params.der Emily var/priv/emily.priv.der var/pub/emily.pub.der
+./share_secret   var/params.der var/created-secret.der var/shared-secret.der 3 var/pub/*.pub.der
+for user in emily david alice; do
+    ./decrypt_share var/params.der var/shared-secret.der var/priv/$user.priv.der var/decrypted/$user.der
+done
+./reconstruct var/params.der var/shared-secret.der var/reconstructed-secret.der var/decrypted/*.der
+
+sha256sum var/created-secret.der var/reconstructed-secret.der
