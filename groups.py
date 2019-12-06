@@ -49,6 +49,9 @@ class ZqValue:
     def __int__(self):
         return self.value
 
+    def __neg__(self) -> ZqValue:
+        return self.group(-self.value)
+
     def __add__(self, other: ZqOrInt) -> ZqValue:
         if isinstance(other, int):
             return self.group(self.value + other)
