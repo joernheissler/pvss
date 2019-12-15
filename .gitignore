@@ -1,5 +1,4 @@
 *.der
 __pycache__
-var
 *.swp
 .mypy_cache

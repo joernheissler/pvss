@@ -1,0 +1,78 @@
+#!/usr/bin/env python3.8
+
+"""
+This example encrypts a secret payload ("Hello, World!") with a shared secret.
+Five shareholders receive a share each and three of them will send their shares
+to a recipient who will reconstruct the shared secret and decrypt the payload.
+"""
+
+from hashlib import sha256
+from os import urandom
+from random import sample
+
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from pvss import Pvss, create_qr_params
+
+# Secret payload
+payload = b"Hello, World!"
+
+shareholders = {"Alice", "Bob", "Chris", "Dave", "Emily"}
+qualified_size = 3
+
+# Pvss object holds all **public** values and implements the protocol operations.
+# In a real environment, every party would have their own object.
+pvss = Pvss()
+
+# Initialization: Create parameters from result of "openssl dhparam 64". In reality
+# use a bigger value like 4096, or use "curve25519" instead.
+params = create_qr_params(pvss,
+    """
+-----BEGIN DH PARAMETERS-----
+MA4CCQDPtBv8sZnGswIBAg==
+-----END DH PARAMETERS-----
+"""
+)
+# Initialization: Store generated parameters in pvss object. This doesn't happen automatically.
+pvss.params = params
+print(f"Generated parameters: {params.hex()}\n")
+
+# Shareholders: Create key pairs and store the public keys in the pvss object.
+user_priv = {}
+for name in sample(shareholders, len(shareholders)):
+    priv, pub = pvss.create_keypair(name)
+    pvss.add_shareholder_public_key(pub)
+    user_priv[name] = priv
+    print(f"Created keypair for {name:5}:\n    priv={priv.hex()}\n    pub={pub.hex()}")
+print()
+
+# Sender: Share secret and store the shares in the pvss object
+secret0, shares = pvss.share_secret(qualified_size)
+pvss.shares = shares
+print(f"Generated shared secret: {secret0.hex()}")
+print(f"Encrypted shares: {shares.hex()}")
+
+# Sender: Encrypt payload with shared secret. `nonce` and `encrypted_payload` are public values.
+nonce = urandom(12)
+encrypted_payload = AESGCM(sha256(secret0).digest()).encrypt(nonce, payload, shares)
+print(f"Encrypted payload:\n    nonce={nonce.hex()}\n    payload={encrypted_payload.hex()}\n")
+
+# Recipient: Create recipient key pair and store the public key in the pvss object.
+recp_priv, recp_pub = pvss.create_keypair("Recipient")
+pvss.recipient_public_key = recp_pub
+print(f"Created keypair for recipient:\n    priv={recp_priv.hex()}\n    pub={recp_pub.hex()}\n")
+
+# Shareholders: Reencrypt some shares and store the result in the pvss object.
+for name in sample(shareholders, qualified_size):
+    reenc_share = pvss.reencrypt_share(user_priv[name])
+    pvss.add_reencrypted_share(reenc_share)
+    print(f"Re-encrypted share for {name:5}: {reenc_share.hex()}")
+print()
+
+# Recipient: Reconstruct shared secret
+secret1 = pvss.reconstruct_secret(recp_priv)
+print(f"Reconstructed shared secret: {secret1.hex()}")
+
+# Recipient: Decrypt payload and show it.
+key1 = AESGCM(sha256(secret1).digest())
+decrypted_payload = key1.decrypt(nonce, encrypted_payload, shares)
+print(f"Decrypted payload: {decrypted_payload.decode()}")
