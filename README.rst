@@ -34,7 +34,7 @@ Operations
 The protocol consists of multiple steps. Each step yields one or multiple
 messsages that need to be available to the next steps.
 
-Parameter generation
+Initialization
 --------------------
 Mathematical parameters must be chosen, such as a `cyclic group
 <https://en.wikipedia.org/wiki/Cyclic_group>` and several
