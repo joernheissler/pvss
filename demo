@@ -11,27 +11,32 @@ from os import urandom
 from random import sample
 
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-from pvss import Pvss, create_qr_params
+from pvss import Pvss
 
 # Secret payload
 payload = b"Hello, World!"
 
-shareholders = {"Alice", "Bob", "Chris", "Dave", "Emily"}
+shareholders = {"Alice", "Boris", "Chris", "David", "Emily"}
 qualified_size = 3
 
 # Pvss object holds all **public** values and implements the protocol operations.
 # In a real environment, every party would have their own object.
 pvss = Pvss()
 
-# Initialization: Create parameters from result of "openssl dhparam 64". In reality
-# use a bigger value like 4096, or use "curve25519" instead.
-params = create_qr_params(pvss,
-    """
------BEGIN DH PARAMETERS-----
-MA4CCQDPtBv8sZnGswIBAg==
------END DH PARAMETERS-----
-"""
-)
+if False:
+    from pvss.qr import create_qr_params
+
+    # Initialization: Create parameters from result of "openssl dhparam 64". In reality
+    # use a bigger value like 4096, or use "curve25519" instead.
+    params = create_qr_params(
+        pvss,
+        "-----BEGIN DH PARAMETERS-----\nMA4CCQDxE8ZyVvUx0wIBAg==\n-----END DH PARAMETERS-----\n",
+    )
+else:
+    from pvss.ristretto_255 import create_ristretto_255_parameters
+
+    params = create_ristretto_255_parameters(pvss)
+
 # Initialization: Store generated parameters in pvss object. This doesn't happen automatically.
 pvss.params = params
 print(f"Generated parameters: {params.hex()}\n")

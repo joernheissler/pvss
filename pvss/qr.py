@@ -15,8 +15,9 @@ from asn1crypto.pem import unarmor
 from gmpy2 import invert, is_prime, legendre, mpz, powmod
 
 from .asn1 import ImgGroupValue
-from .groups import ImageGroup, ImageValue, ZqOrInt, ZqValue
+from .groups import ImageGroup, ImageValue
 from .pvss import Pvss, SystemParameters
+from .zq import ZqGroup, ZqValue
 
 if TYPE_CHECKING:
     lazy = property
@@ -55,6 +56,10 @@ class QrParameters(SystemParameters):
     """
 
     ALGO = "qr_mod_p"
+
+    @lazy
+    def pre_group(self) -> ZqGroup:
+        return ZqGroup(self.img_group.len)
 
     @lazy
     def img_group(self) -> QrGroup:
@@ -132,7 +137,7 @@ class QrGroup(ImageGroup):
     def len(self) -> int:
         return int(self.p // 2)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """
         Outputs a representation of this group.
 
@@ -183,7 +188,9 @@ class QrValue(ImageValue):
 
         return self.group(self.value * other.value)
 
-    def __pow__(self: QrValue, other: Union[Fraction, ZqOrInt], modulo: int = None) -> QrValue:
+    def __pow__(
+        self: QrValue, other: Union[Fraction, int, ZqValue], modulo: int = None
+    ) -> QrValue:
         """
         Implement a ** b and pow(a, b).
         If b is a Fraction c/d, compute a ** (c * (d^-1))
@@ -205,7 +212,7 @@ class QrValue(ImageValue):
         if isinstance(other, ZqValue):
             if other.group.len != self.group.len:
                 raise TypeError("incompatible groups")
-            return self.group(powmod(self.value, other.value, self.group.p))
+            return self.group(powmod(self.value, int(other), self.group.p))
 
         if isinstance(other, Fraction):
             tmp = powmod(self.value, other.numerator, self.group.p)

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from hashlib import md5
 from typing import ByteString, Type, TypeVar, Union, cast
 
 from asn1crypto.core import (
@@ -42,11 +43,13 @@ class ImgGroupValue(Choice):
 
 
 class PvssAlgorithmId(ObjectIdentifier):
+    # XXX Should get a better OID
+    _base_oid = f'2.25.{int.from_bytes(md5(b"pvss").digest(), "little")}.1'
     _map = {
-        "1.2.840.113549.1.3.1": "qr_mod_p",
-        "1.3.101.110": "x25519",
-        "1.3.101.111": "x448",
-        "1.2.840.10045.3.1.7": "p256",
+        _base_oid + ".0": "qr_mod_p",
+        _base_oid + ".1": "ristretto_255",
+        _base_oid + ".2": "ristretto_448",
+        _base_oid + ".3": "nist_p_256",
     }
 
 
@@ -54,7 +57,12 @@ class SystemParameters(VerifiedLoader, Sequence):
     _fields = [("algorithm", PvssAlgorithmId), ("parameters", Any)]
 
     _oid_pair = ("algorithm", "parameters")
-    _oid_specs = {"qr_mod_p": Integer, "x25519": Null, "x448": Null, "p256": Null}
+    _oid_specs = {
+        "qr_mod_p": Integer,
+        "ristretto_255": Null,
+        "ristretto_448": Null,
+        "nist_p_256": Null,
+    }
 
 
 class PublicKey(VerifiedLoader, Sequence):

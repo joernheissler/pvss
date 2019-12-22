@@ -27,7 +27,7 @@ from typing import (
 from asn1crypto.core import Asn1Value
 
 from . import asn1
-from .groups import ImageGroup, ImageValue, ZqGroup, ZqValue
+from .groups import ImageGroup, ImageValue, PreGroup, PreGroupValue
 
 if TYPE_CHECKING:
     lazy = property
@@ -50,18 +50,22 @@ def zip_strict(*args: Iterable[Any]) -> Iterator[Any]:
 _T0 = TypeVar("_T0")
 
 
-def prod(items: Iterable[_T0]) -> _T0:
+def prod(items: Iterable[_T0], initializer: _T0 = None) -> _T0:
     """
     Product function, like sum() but with multiplication.
 
     Params:
         items: items to multiply
+        initializer: Optional initializer
 
     Returns:
         product
     """
 
-    return reduce(mul, items)
+    if initializer is None:
+        return reduce(mul, items)
+    else:
+        return reduce(mul, items, initializer)
 
 
 _T1 = TypeVar("_T1", bound="Asn1Object")
@@ -120,9 +124,11 @@ class SystemParameters(Asn1Object):
     def create(cls, pvss: Pvss, params: Any) -> SystemParameters:
         return cls(pvss, asn1.SystemParameters({"algorithm": cls.ALGO, "parameters": params}))
 
-    @lazy
-    def pre_group(self) -> ZqGroup:
-        return ZqGroup(self.img_group.len)
+    @property
+    @abstractmethod
+    def pre_group(self) -> PreGroup:
+        """
+        """
 
     @lazy
     def g(self) -> ImageValue:
@@ -167,15 +173,15 @@ class PrivateKey(Asn1Object):
         self.priv
 
     @classmethod
-    def create(cls, pvss: Pvss, priv: ZqValue) -> PrivateKey:
-        return cls(pvss, asn1.PrivateKey({"priv": priv.value}))
+    def create(cls, pvss: Pvss, priv: PreGroupValue) -> PrivateKey:
+        return cls(pvss, asn1.PrivateKey({"priv": priv.asn1}))
 
     @classmethod
     def create_random(cls, pvss: Pvss) -> PrivateKey:
         return cls.create(pvss, pvss.params.pre_group.rand_nonzero)
 
     @lazy
-    def priv(self) -> ZqValue:
+    def priv(self) -> PreGroupValue:
         return self.pvss.params.pre_group(self.asn1["priv"])
 
     def pub(self, name: str) -> PublicKey:
@@ -255,7 +261,10 @@ class Secret(Asn1Object):
 
         secret = prod(
             share0
-            ** prod(Fraction(idx1, idx1 - idx0) for idx1 in shares.keys() if idx0 != idx1)
+            ** prod(
+                (Fraction(idx1, idx1 - idx0) for idx1 in shares.keys() if idx0 != idx1),
+                Fraction(1),
+            )
             for idx0, share0 in shares.items()
         )
 
@@ -267,7 +276,11 @@ class Share(Asn1Object):
 
     @classmethod
     def create(
-        cls, pvss: Pvss, pub_name: str, share: ImageValue, resp: Tuple[ZqValue, ZqValue]
+        cls,
+        pvss: Pvss,
+        pub_name: str,
+        share: ImageValue,
+        resp: Tuple[PreGroupValue, PreGroupValue],
     ) -> Share:
         return cls(
             pvss,
@@ -275,8 +288,8 @@ class Share(Asn1Object):
                 {
                     "pub": pub_name,
                     "share": share.asn1,
-                    "response_x": resp[0].value,
-                    "response_y": resp[1].value,
+                    "response_x": resp[0].asn1,
+                    "response_y": resp[1].asn1,
                 }
             ),
         )
@@ -300,7 +313,7 @@ class Share(Asn1Object):
         return self.params.img_group(self.asn1["share"])
 
     @lazy
-    def resp(self) -> Tuple[ZqValue, ZqValue]:
+    def resp(self) -> Tuple[PreGroupValue, PreGroupValue]:
         return (
             self.params.pre_group(self.asn1["response_x"]),
             self.params.pre_group(self.asn1["response_y"]),
@@ -462,11 +475,11 @@ class ReencryptedShare(Asn1Object):
         idx: int,
         c1: ImageValue,
         c2: ImageValue,
-        response_priv: ZqValue,
-        response_a: ZqValue,
-        response_b: ZqValue,
-        response_v: ZqValue,
-        response_w: ZqValue,
+        response_priv: PreGroupValue,
+        response_a: PreGroupValue,
+        response_b: PreGroupValue,
+        response_v: PreGroupValue,
+        response_w: PreGroupValue,
         challenge: ByteString,
     ) -> ReencryptedShare:
         return cls(
@@ -476,11 +489,11 @@ class ReencryptedShare(Asn1Object):
                     "idx": idx,
                     "c1": c1.asn1,
                     "c2": c2.asn1,
-                    "response_priv": response_priv.value,
-                    "response_a": response_a.value,
-                    "response_b": response_b.value,
-                    "response_v": response_v.value,
-                    "response_w": response_w.value,
+                    "response_priv": response_priv.asn1,
+                    "response_a": response_a.asn1,
+                    "response_b": response_b.asn1,
+                    "response_v": response_v.asn1,
+                    "response_w": response_w.asn1,
                     "challenge": bytes(challenge),
                 }
             ),
@@ -499,23 +512,23 @@ class ReencryptedShare(Asn1Object):
         return self.params.img_group(self.asn1["c2"])
 
     @lazy
-    def response_priv(self) -> ZqValue:
+    def response_priv(self) -> PreGroupValue:
         return self.params.pre_group(self.asn1["response_priv"])
 
     @lazy
-    def response_a(self) -> ZqValue:
+    def response_a(self) -> PreGroupValue:
         return self.params.pre_group(self.asn1["response_a"])
 
     @lazy
-    def response_b(self) -> ZqValue:
+    def response_b(self) -> PreGroupValue:
         return self.params.pre_group(self.asn1["response_b"])
 
     @lazy
-    def response_v(self) -> ZqValue:
+    def response_v(self) -> PreGroupValue:
         return self.params.pre_group(self.asn1["response_v"])
 
     @lazy
-    def response_w(self) -> ZqValue:
+    def response_w(self) -> PreGroupValue:
         return self.params.pre_group(self.asn1["response_w"])
 
     @lazy
@@ -578,7 +591,7 @@ class ReencryptedShare(Asn1Object):
             raise ValueError("No matching public key found")
 
         # decrypt our share
-        share = enc_share.share ** (private_key.priv ** -1)
+        share = enc_share.share ** private_key.priv.inv
 
         # Reencrypt share with Elgamal encryption using the recipient's public key
         a = pvss.params.pre_group.rand
@@ -853,18 +866,18 @@ class Pvss:
 
 
 class Poly:
-    _coeffs: List[ZqValue]
+    _coeffs: List[PreGroupValue]
 
-    def __init__(self, coeffs: Iterable[ZqValue]) -> None:
+    def __init__(self, coeffs: Iterable[PreGroupValue]) -> None:
         self._coeffs = list(coeffs)
 
-    def __call__(self, x: int) -> ZqValue:
+    def __call__(self, x: int) -> PreGroupValue:
         return sum(coeff * (x ** j) for j, coeff in enumerate(self._coeffs))
 
     def __len__(self) -> int:
         return len(self._coeffs)
 
-    def __getitem__(self, idx: int) -> ZqValue:
+    def __getitem__(self, idx: int) -> PreGroupValue:
         return self._coeffs[idx]
 
     def __repr__(self) -> str:
