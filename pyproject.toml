@@ -1,2 +1,75 @@
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
+
+[tool.poetry]
+name = "pvss"
+version = "0.1.0"
+description = "Public Verifiable Secret Sharing in Python"
+authors = ["Jörn Heissler <nosuchaddress@joern.heissler.de>"]
+license = "MIT"
+readme = "README.rst"
+homepage = "https://github.com/joernheissler/pvss"
+repository = "https://github.com/joernheissler/pvss"
+keywords = [
+    "pvss",
+    "secret sharing",
+    "shamir",
+    "zero knowledge",
+    "ristretto25519",
+]
+
+classifiers = [
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Security :: Cryptography",
+    "Topic :: Scientific/Engineering :: Mathematics",
+]
+
+
+[tool.poetry.dependencies]
+python = "^3.7"
+click = "^7.0"
+asn1crypto = "^1.2.0"
+lazy = "^1.4"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.3.2"
+cryptography = "^2.8"
+tox = "^3.14.3"
+gmpy2 = "^2.0.8"
+coverage = "^5.0.1"
+
 [tool.black]
 line-length = 96
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+skipsdist = True
+envlist = py37, py38
+
+[testenv]
+skip_install = true
+whitelist_externals = poetry
+commands =
+#   poetry install -vvv
+    poetry run pytest -v tests/
+    poetry run mypy --strict pvss tests
+    poetry run coverage erase
+    poetry run coverage run -m pytest -v --strict tests
+    poetry run coverage html
+"""
+
+[tool.coverage]
+    [tool.coverage.report]
+    show_missing = true
+
+    [tool.coverage.run]
+    branch = true
+    source = [
+        "tests",
+        "pvss",
+    ]
+
+    [tool.coverage.html]
+    directory = "coverage_html_report"

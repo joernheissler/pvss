@@ -7,22 +7,25 @@ from __future__ import annotations
 import hmac
 from dataclasses import dataclass
 from fractions import Fraction
-from typing import TYPE_CHECKING, ByteString, Union, cast
+from typing import TYPE_CHECKING, ByteString, Optional, Union, cast
 
 from asn1crypto.algos import DHParameters
-from asn1crypto.core import Integer
+from asn1crypto.core import Asn1Value, Integer
 from asn1crypto.pem import unarmor
 from gmpy2 import invert, is_prime, legendre, mpz, powmod
 
 from .asn1 import ImgGroupValue
-from .groups import ImageGroup, ImageValue
+from .groups import ImageGroup, ImageValue, PgvOrInt
 from .pvss import Pvss, SystemParameters
 from .zq import ZqGroup, ZqValue
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     lazy = property
 else:
     from lazy import lazy
+
+# Will be fixed by gmpy2 2.1
+mpz_type = mpz if isinstance(mpz, type) else type(mpz(0))
 
 
 def create_qr_params(pvss: Pvss, params: Union[int, str, ByteString]) -> bytes:
@@ -45,7 +48,7 @@ def create_qr_params(pvss: Pvss, params: Union[int, str, ByteString]) -> bytes:
             # DER encoding of "Sequence" starts with 0x30. So it's probably PEM.
             params = unarmor(bytes(params))[2]
 
-        params = int(DHParameters.load(bytes(cast(ByteString, params)))["p"])
+        params = int(cast(Integer, DHParameters.load(bytes(params))["p"]))
 
     return QrParameters.create(pvss, params).der
 
@@ -59,7 +62,7 @@ class QrParameters(SystemParameters):
 
     @lazy
     def pre_group(self) -> ZqGroup:
-        return ZqGroup(self.img_group.len)
+        return ZqGroup(mpz(self.img_group.len))
 
     @lazy
     def img_group(self) -> QrGroup:
@@ -67,7 +70,7 @@ class QrParameters(SystemParameters):
         Create image group singleton
         """
 
-        return QrGroup(mpz(int(self.asn1["parameters"])))
+        return QrGroup(mpz(int(cast(Integer, self.asn1["parameters"]))))
 
     def _make_gen(self, seed: str) -> QrValue:
         """
@@ -103,15 +106,15 @@ class QrGroup(ImageGroup):
 
     p: mpz
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not is_prime(self.p):
             raise ValueError("p not prime")
 
         if not is_prime(self.len):
             raise ValueError("(p - 1) / 2 not prime")
 
-    def __call__(self, value: Union[int, mpz, Integer, ImgGroupValue]) -> QrValue:
-        if isinstance(value, (int, mpz)):
+    def __call__(self, value: Union[int, mpz, Integer, Asn1Value]) -> QrValue:
+        if isinstance(value, (int, mpz_type)):
             value %= self.p
             if value == 0:
                 raise ValueError("0 not in group")
@@ -158,12 +161,12 @@ class QrValue(ImageValue):
     value: mpz
 
     @property
-    def asn1(self) -> Integer:
+    def asn1(self) -> ImgGroupValue:
         """
         Convert to ASN.1 Integer type
         """
 
-        return Integer(int(self))
+        return ImgGroupValue({"QrValue": Integer(int(self))})
 
     def __int__(self) -> int:
         """
@@ -189,7 +192,7 @@ class QrValue(ImageValue):
         return self.group(self.value * other.value)
 
     def __pow__(
-        self: QrValue, other: Union[Fraction, int, ZqValue], modulo: int = None
+        self, other: Union[PgvOrInt, Fraction], modulo: Optional[int] = None
     ) -> QrValue:
         """
         Implement a ** b and pow(a, b).

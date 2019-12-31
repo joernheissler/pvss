@@ -2,3 +2,8 @@
 __pycache__
 *.swp
 .mypy_cache
+dist
+.tox
+*.egg-info
+.coverage
+coverage_html_report

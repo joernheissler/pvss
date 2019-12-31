@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hmac
 from abc import ABC, abstractmethod
 from fractions import Fraction
 from functools import reduce
@@ -16,20 +15,23 @@ from typing import (
     Iterable,
     Iterator,
     List,
+    Optional,
     Sequence,
     Tuple,
     Type,
     TypeVar,
     Union,
+    cast,
     get_type_hints,
+    overload,
 )
 
-from asn1crypto.core import Asn1Value
+from asn1crypto.core import Asn1Value, Integer, OctetString, SequenceOf
 
-from . import asn1
+from . import asn1 as _asn1
 from .groups import ImageGroup, ImageValue, PreGroup, PreGroupValue
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     lazy = property
 else:
     from lazy import lazy
@@ -43,14 +45,14 @@ def zip_strict(*args: Iterable[Any]) -> Iterator[Any]:
     sentinel = object()
     for things in zip_longest(*args, fillvalue=sentinel):
         if any(thing is sentinel for thing in things):
-            raise Exception("Not all iters finished at the same time")
+            raise ValueError("Not all iters finished at the same time")
         yield things
 
 
 _T0 = TypeVar("_T0")
 
 
-def prod(items: Iterable[_T0], initializer: _T0 = None) -> _T0:
+def prod(items: Iterable[_T0], initializer: Optional[_T0] = None) -> _T0:
     """
     Product function, like sum() but with multiplication.
 
@@ -94,24 +96,28 @@ class Asn1Object(ABC):
 
     @abstractmethod
     def _validate(self) -> None:
-        pass
+        """
+        """
 
     def __eq__(self, other: Any) -> bool:
-        if type(self) is not type(other):
+        if not isinstance(other, type(self)):
             return False
 
         return self.der == other.der
 
 
+_T2 = TypeVar("_T2", bound="SystemParameters")
+
 class SystemParameters(Asn1Object):
     ALGO: str
-    asn1: asn1.SystemParameters
+    asn1: _asn1.SystemParameters
 
     _algos: Dict[str, Type[SystemParameters]] = {}
 
-    def __new__(cls, pvss: Pvss, asn1: asn1.SystemParameters) -> SystemParameters:
+    def __new__(cls, pvss: Pvss, asn1: _asn1.SystemParameters) -> SystemParameters:
         algo = asn1["algorithm"].native
-        return super().__new__(cls._algos[algo])
+        impl = cls._algos[algo]
+        return cast(SystemParameters, super().__new__(impl))
 
     def __init_subclass__(cls) -> None:
         """
@@ -121,8 +127,8 @@ class SystemParameters(Asn1Object):
         cls._algos[cls.ALGO] = cls
 
     @classmethod
-    def create(cls, pvss: Pvss, params: Any) -> SystemParameters:
-        return cls(pvss, asn1.SystemParameters({"algorithm": cls.ALGO, "parameters": params}))
+    def create(cls: Type[_T2], pvss: Pvss, params: Any) -> _T2:
+        return cls(pvss, _asn1.SystemParameters({"algorithm": cls.ALGO, "parameters": params}))
 
     @property
     @abstractmethod
@@ -147,9 +153,6 @@ class SystemParameters(Asn1Object):
         return self._make_gen("H")
 
     def _validate(self) -> None:
-        if self.asn1["algorithm"].native != self.ALGO:
-            raise TypeError
-
         # Load groups to validate them
         self.img_group
         self.pre_group
@@ -157,15 +160,17 @@ class SystemParameters(Asn1Object):
     @property
     @abstractmethod
     def img_group(self) -> ImageGroup:
-        pass
+        """
+        """
 
     @abstractmethod
     def _make_gen(self, seed: str) -> ImageValue:
-        pass
+        """
+        """
 
 
 class PrivateKey(Asn1Object):
-    asn1: asn1.PrivateKey
+    asn1: _asn1.PrivateKey
 
     def _validate(self) -> None:
         """
@@ -174,7 +179,7 @@ class PrivateKey(Asn1Object):
 
     @classmethod
     def create(cls, pvss: Pvss, priv: PreGroupValue) -> PrivateKey:
-        return cls(pvss, asn1.PrivateKey({"priv": priv.asn1}))
+        return cls(pvss, _asn1.PrivateKey({"priv": priv.asn1}))
 
     @classmethod
     def create_random(cls, pvss: Pvss) -> PrivateKey:
@@ -191,7 +196,7 @@ class PrivateKey(Asn1Object):
 
 
 class PublicKey(Asn1Object):
-    asn1: asn1.PublicKey
+    asn1: _asn1.PublicKey
 
     def _validate(self) -> None:
         """
@@ -204,7 +209,7 @@ class PublicKey(Asn1Object):
     @classmethod
     def create(cls, pvss: Pvss, name: str, pub0: ImageValue, pub1: ImageValue) -> PublicKey:
         return cls(
-            pvss, asn1.PublicKey({"name": str(name), "pub0": pub0.asn1, "pub1": pub1.asn1})
+            pvss, _asn1.PublicKey({"name": str(name), "pub0": pub0.asn1, "pub1": pub1.asn1})
         )
 
     @lazy
@@ -221,11 +226,11 @@ class PublicKey(Asn1Object):
 
 
 class Secret(Asn1Object):
-    asn1: asn1.Secret
+    asn1: _asn1.Secret
 
     @classmethod
     def create(cls, pvss: Pvss, secret: ImageValue) -> Secret:
-        return cls(pvss, asn1.Secret({"secret": secret.asn1}))
+        return cls(pvss, _asn1.Secret({"secret": secret.asn1}))
 
     @lazy
     def secret(self) -> ImageValue:
@@ -272,7 +277,7 @@ class Secret(Asn1Object):
 
 
 class Share(Asn1Object):
-    asn1: asn1.Share
+    asn1: _asn1.Share
 
     @classmethod
     def create(
@@ -284,7 +289,7 @@ class Share(Asn1Object):
     ) -> Share:
         return cls(
             pvss,
-            asn1.Share(
+            _asn1.Share(
                 {
                     "pub": pub_name,
                     "share": share.asn1,
@@ -296,7 +301,7 @@ class Share(Asn1Object):
 
     @lazy
     def pub_name(self) -> str:
-        return self.asn1["pub"].native
+        return cast(str, self.asn1["pub"].native)
 
     @lazy
     def pub(self) -> PublicKey:
@@ -328,7 +333,7 @@ class Share(Asn1Object):
 
 
 class SharedSecret(Asn1Object):
-    asn1: asn1.SharedSecret
+    asn1: _asn1.SharedSecret
 
     @classmethod
     def create(
@@ -340,7 +345,7 @@ class SharedSecret(Asn1Object):
     ) -> SharedSecret:
         return cls(
             pvss,
-            asn1.SharedSecret(
+            _asn1.SharedSecret(
                 {
                     "shares": [share.asn1 for share in shares],
                     "coefficients": [coeff.asn1 for coeff in coeffs],
@@ -351,15 +356,18 @@ class SharedSecret(Asn1Object):
 
     @lazy
     def shares(self) -> List[Share]:
-        return [Share(self.pvss, share) for share in self.asn1["shares"]]
+        return [Share(self.pvss, share) for share in cast(SequenceOf, self.asn1["shares"])]
 
     @lazy
     def coefficients(self) -> List[ImageValue]:
-        return [self.params.img_group(coeff) for coeff in self.asn1["coefficients"]]
+        return [
+            self.params.img_group(coeff)
+            for coeff in cast(SequenceOf, self.asn1["coefficients"])
+        ]
 
     @lazy
     def digest(self) -> bytes:
-        return bytes(self.asn1["challenge"])
+        return bytes(cast(OctetString, self.asn1["challenge"]))
 
     @lazy
     def challenge(self) -> int:
@@ -415,8 +423,14 @@ class SharedSecret(Asn1Object):
         pub = pvss.shareholder_public_keys
 
         # polynomials, chosen from Z_q
-        alpha = Poly(pvss.params.pre_group.rand for __ in range(qualified_size))
-        beta = Poly(pvss.params.pre_group.rand for __ in range(qualified_size))
+        alpha = Poly(
+            (pvss.params.pre_group.rand for __ in range(qualified_size)),
+            pvss.params.pre_group(0),
+        )
+        beta = Poly(
+            (pvss.params.pre_group.rand for __ in range(qualified_size)),
+            pvss.params.pre_group(0),
+        )
 
         # Secret to be shared
         S = Secret.create(pvss, (pvss.params.G ** alpha(0)) * (pvss.params.H ** beta(0)))
@@ -466,7 +480,7 @@ class SharedSecret(Asn1Object):
 
 
 class ReencryptedShare(Asn1Object):
-    asn1: asn1.ReencryptedShare
+    asn1: _asn1.ReencryptedShare
 
     @classmethod
     def create(
@@ -484,7 +498,7 @@ class ReencryptedShare(Asn1Object):
     ) -> ReencryptedShare:
         return cls(
             pvss,
-            asn1.ReencryptedShare(
+            _asn1.ReencryptedShare(
                 {
                     "idx": idx,
                     "c1": c1.asn1,
@@ -501,7 +515,7 @@ class ReencryptedShare(Asn1Object):
 
     @lazy
     def idx(self) -> int:
-        return int(self.asn1["idx"])
+        return int(cast(Integer, self.asn1["idx"]))
 
     @lazy
     def c1(self) -> ImageValue:
@@ -533,7 +547,7 @@ class ReencryptedShare(Asn1Object):
 
     @lazy
     def digest(self) -> bytes:
-        return bytes(self.asn1["challenge"])
+        return bytes(cast(OctetString, self.asn1["challenge"]))
 
     @lazy
     def challenge(self) -> int:
@@ -651,7 +665,7 @@ class Challenge(Asn1Object):
 
 
 class SharesChallenge(Challenge):
-    asn1: asn1.SharesChallenge
+    asn1: _asn1.SharesChallenge
 
     @classmethod
     def create(
@@ -667,7 +681,7 @@ class SharesChallenge(Challenge):
         """
         return cls(
             pvss,
-            asn1.SharesChallenge(
+            _asn1.SharesChallenge(
                 {
                     "parameters": pvss.params.asn1,
                     "coefficients": [coeff.asn1 for coeff in coeffs],
@@ -689,7 +703,7 @@ class SharesChallenge(Challenge):
 
 
 class ReencryptedChallenge(Challenge):
-    asn1: asn1.ReencryptedChallenge
+    asn1: _asn1.ReencryptedChallenge
 
     @classmethod
     def create(
@@ -704,7 +718,7 @@ class ReencryptedChallenge(Challenge):
         """
         return cls(
             pvss,
-            asn1.ReencryptedChallenge(
+            _asn1.ReencryptedChallenge(
                 {
                     "parameters": pvss.params.asn1,
                     "public_keys": [pub.asn1 for pub in pvss.ordered_shareholder_public_keys],
@@ -865,19 +879,33 @@ class Pvss:
         return Secret.reconstruct(self, private_key).der
 
 
-class Poly:
+class Poly(Sequence[PreGroupValue]):
     _coeffs: List[PreGroupValue]
+    _zero: PreGroupValue
 
-    def __init__(self, coeffs: Iterable[PreGroupValue]) -> None:
+    def __init__(self, coeffs: Iterable[PreGroupValue], zero: PreGroupValue) -> None:
         self._coeffs = list(coeffs)
+        self._zero = zero
 
     def __call__(self, x: int) -> PreGroupValue:
-        return sum(coeff * (x ** j) for j, coeff in enumerate(self._coeffs))
+        return sum((coeff * (x ** j) for j, coeff in enumerate(self._coeffs)), self._zero)
 
     def __len__(self) -> int:
         return len(self._coeffs)
 
-    def __getitem__(self, idx: int) -> PreGroupValue:
+    @overload
+    def __getitem__(self, index: int) -> PreGroupValue:
+        """
+        """
+
+    @overload
+    def __getitem__(self, index: slice) -> Sequence[PreGroupValue]:
+        """
+        """
+
+    def __getitem__(
+        self, idx: Union[int, slice]
+    ) -> Union[PreGroupValue, Sequence[PreGroupValue]]:
         return self._coeffs[idx]
 
     def __repr__(self) -> str:

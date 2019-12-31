@@ -13,6 +13,8 @@ from random import sample
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from pvss import Pvss
 
+from sys import argv
+
 # Secret payload
 payload = b"Hello, World!"
 
@@ -23,7 +25,8 @@ qualified_size = 3
 # In a real environment, every party would have their own object.
 pvss = Pvss()
 
-if False:
+
+if len(argv) == 2 and argv[1] == 'qr':
     from pvss.qr import create_qr_params
 
     # Initialization: Create parameters from result of "openssl dhparam 64". In reality
@@ -32,10 +35,15 @@ if False:
         pvss,
         "-----BEGIN DH PARAMETERS-----\nMA4CCQDxE8ZyVvUx0wIBAg==\n-----END DH PARAMETERS-----\n",
     )
-else:
+
+elif len(argv) == 2 and argv[1] == 'rst255':
     from pvss.ristretto_255 import create_ristretto_255_parameters
 
     params = create_ristretto_255_parameters(pvss)
+
+else:
+    exit(f"Usage: {argv[0]} <qr|rst255>")
+
 
 # Initialization: Store generated parameters in pvss object. This doesn't happen automatically.
 pvss.params = params

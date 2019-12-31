@@ -10,15 +10,15 @@ import hmac
 from dataclasses import dataclass
 from fractions import Fraction
 from secrets import randbelow
-from typing import TYPE_CHECKING, ByteString, Union
+from typing import TYPE_CHECKING, ByteString, Optional, Union
 
-from asn1crypto.core import Integer, OctetString
+from asn1crypto.core import Asn1Value, Integer, OctetString
 
-from . import asn1
-from .groups import ImageGroup, ImageValue, PreGroup, PreGroupValue
+from . import asn1 as _asn1
+from .groups import ImageGroup, ImageValue, PgvOrInt, PreGroup, PreGroupValue
 from .pvss import Pvss, SystemParameters
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     lazy = property
 else:
     from lazy import lazy
@@ -50,18 +50,18 @@ class Ristretto255Parameters(SystemParameters):
             # Check for neutral elements; we don't want those.
             if gen:
                 return gen
-
-            # Try again with other seed.
-            seed += "_"
+            else:  # pragma: no cover
+                # Try again with other seed.
+                seed += "_"
 
 
 class _Lib:
     lib_name = ctypes.util.find_library("sodium")
-    if not lib_name:
+    if not lib_name:  # pragma: no cover
         raise Exception("libsodium not found")
 
     lib = ctypes.cdll.LoadLibrary(lib_name)
-    if lib.sodium_init() < 0:
+    if lib.sodium_init() < 0:  # pragma: no cover
         raise Exception("Cannot initialize libsodium")
 
     # int sodium_memcmp(const void * const b1_, const void * const b2_, size_t len);
@@ -154,10 +154,12 @@ class _Lib:
 class Ristretto255Group(ImageGroup):
     pre_group: Ristretto255ScalarGroup
 
-    def __call__(self, value: Union[asn1.ImgGroupValue]) -> Ristretto255Point:
+    def __call__(self, value: Union[Asn1Value]) -> Ristretto255Point:
         """
         Create from serialized buffer, inverse of bytes()
         """
+        if not isinstance(value, _asn1.ImgGroupValue):
+            raise TypeError(type(value))
         buf = value.chosen
         if not isinstance(buf, OctetString):
             raise TypeError(type(buf))
@@ -184,24 +186,7 @@ class Ristretto255Group(ImageGroup):
         buf = ctypes.create_string_buffer(bytes(value), 64)
         res = ctypes.create_string_buffer(32)
         if _Lib.point_from_hash(res, buf) < 0:
-            raise Exception("Unknown error")
-        return Ristretto255Point(self, res)
-
-    def base_mul(self, other: Union[int, Ristretto255Scalar]) -> Ristretto255Point:
-        """
-        Compute base * other
-        """
-
-        if isinstance(other, int):
-            buf = self.group(other)._buf
-        elif isinstance(other, Ristretto255Scalar):
-            buf = other._buf
-        else:
-            return NotImplemented
-
-        res = ctypes.create_string_buffer(32)
-        if _Lib.point_base_mul(res, buf) < 0:
-            raise ValueError("Zero")
+            raise Exception("Unknown error")  # pragma: no cover
         return Ristretto255Point(self, res)
 
     @property
@@ -215,14 +200,14 @@ class Ristretto255Group(ImageGroup):
 @dataclass(frozen=True, eq=False, repr=False)
 class Ristretto255Point(ImageValue):
     group: Ristretto255Group
-    _buf: ctypes.Array
+    _buf: ctypes.Array[ctypes.c_char]
 
     @lazy
-    def asn1(self) -> OctetString:
-        return OctetString(bytes(self))
+    def asn1(self) -> _asn1.ImgGroupValue:
+        return _asn1.ImgGroupValue({"ECPoint": OctetString(bytes(self))})
 
     def __pow__(
-        self, other: Union[int, Ristretto255Scalar, Fraction], modulo: int = None
+        self, other: Union[PgvOrInt, Fraction], modulo: Optional[int] = None
     ) -> Ristretto255Point:
         """
         Compute self ** other
@@ -256,7 +241,7 @@ class Ristretto255Point(ImageValue):
             raise ValueError("Encoding error")
         return Ristretto255Point(self.group, res)
 
-    def __div__(self, other: ImageValue) -> Ristretto255Point:
+    def __floordiv__(self, other: ImageValue) -> Ristretto255Point:
         """
         Compute self / other
         """
@@ -303,9 +288,12 @@ class Ristretto255Point(ImageValue):
 
         return not _Lib.is_zero(self._buf, 32)
 
+    def __hash__(self) -> int:
+        return hash(bytes(self._buf))
+
 
 class Ristretto255ScalarGroup(PreGroup):
-    def __call__(self, value: Union[int, asn1.PreGroupValue, Fraction]) -> PreGroupValue:
+    def __call__(self, value: Union[int, Asn1Value, Fraction]) -> Ristretto255Scalar:
         """
         Convert an integer into a group element
 
@@ -313,7 +301,7 @@ class Ristretto255ScalarGroup(PreGroup):
             Group element
         """
 
-        if isinstance(value, asn1.PreGroupValue):
+        if isinstance(value, _asn1.PreGroupValue):
             value = int(value)
             if not 0 <= value < group_order:
                 raise ValueError("Not a valid group element")
@@ -339,7 +327,7 @@ class Ristretto255ScalarGroup(PreGroup):
         if isinstance(value, Fraction):
             return self(value.numerator) * self(value.denominator).inv
 
-        return NotImplemented
+        raise TypeError(type(value))
 
     @property
     def len(self) -> int:
@@ -392,19 +380,14 @@ class Ristretto255ScalarGroup(PreGroup):
 @dataclass(frozen=True, eq=False, repr=False)
 class Ristretto255Scalar(PreGroupValue):
     group: Ristretto255ScalarGroup
-    _buf: ctypes.Array
+    _buf: ctypes.Array[ctypes.c_char]
 
     def __neg__(self) -> Ristretto255Scalar:
         res = ctypes.create_string_buffer(32)
         _Lib.scalar_negate(res, self._buf)
         return Ristretto255Scalar(self.group, res)
 
-    def __invert__(self) -> Ristretto255Scalar:
-        res = ctypes.create_string_buffer(32)
-        _Lib.scalar_complement(res, self._buf)
-        return Ristretto255Scalar(self.group, res)
-
-    def __add__(self, other: Union[int, Ristretto255Scalar]) -> Ristretto255Scalar:
+    def __add__(self, other: Union[int, PreGroupValue]) -> Ristretto255Scalar:
         if isinstance(other, int):
             buf = self.group(other)._buf
         elif isinstance(other, Ristretto255Scalar):
@@ -416,7 +399,7 @@ class Ristretto255Scalar(PreGroupValue):
         _Lib.scalar_add(res, self._buf, buf)
         return Ristretto255Scalar(self.group, res)
 
-    def __sub__(self, other: Union[int, Ristretto255Scalar]) -> Ristretto255Scalar:
+    def __sub__(self, other: Union[int, PreGroupValue]) -> Ristretto255Scalar:
         if isinstance(other, int):
             buf = self.group(other)._buf
         elif isinstance(other, Ristretto255Scalar):
@@ -428,7 +411,7 @@ class Ristretto255Scalar(PreGroupValue):
         _Lib.scalar_sub(res, self._buf, buf)
         return Ristretto255Scalar(self.group, res)
 
-    def __mul__(self, other: Union[int, Ristretto255Scalar]) -> Ristretto255Scalar:
+    def __mul__(self, other: Union[int, PreGroupValue]) -> Ristretto255Scalar:
         if isinstance(other, int):
             buf = self.group(other)._buf
         elif isinstance(other, Ristretto255Scalar):
@@ -470,5 +453,8 @@ class Ristretto255Scalar(PreGroupValue):
         return bytes(self._buf)
 
     @lazy
-    def asn1(self) -> asn1.PreGroupValue:
-        return asn1.PreGroupValue(int(self))
+    def asn1(self) -> _asn1.PreGroupValue:
+        return _asn1.PreGroupValue(int(self))
+
+    def __hash__(self) -> int:
+        return hash(bytes(self))

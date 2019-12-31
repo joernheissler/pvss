@@ -7,9 +7,11 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from fractions import Fraction
-from typing import Union
+from typing import Optional, Union
 
-from . import asn1
+from asn1crypto.core import Asn1Value
+
+from . import asn1 as _asn1
 
 
 class PreGroup(ABC):
@@ -18,7 +20,7 @@ class PreGroup(ABC):
     """
 
     @abstractmethod
-    def __call__(self, value: Union[int, asn1.PreGroupValue]) -> PreGroupValue:
+    def __call__(self, value: Union[int, Asn1Value]) -> PreGroupValue:
         """
         Convert an integer into a group element
 
@@ -66,12 +68,11 @@ class PreGroup(ABC):
         """
 
 
-@dataclass(frozen=True)
 class PreGroupValue(ABC):
     group: PreGroup
 
     @abstractmethod
-    def __int__(self):
+    def __int__(self) -> int:
         """
         Implement int(a)
 
@@ -159,7 +160,7 @@ class PreGroupValue(ABC):
 
     @property
     @abstractmethod
-    def asn1(self) -> asn1.PreGroupValue:
+    def asn1(self) -> _asn1.PreGroupValue:
         """
         Convert value to an ASN.1 type so it can be serialized to DER.
 
@@ -177,7 +178,7 @@ class ImageGroup(ABC):
     """
 
     @abstractmethod
-    def __call__(self, value: Union[asn1.ImgGroupValue]) -> ImageValue:
+    def __call__(self, value: Union[Asn1Value]) -> ImageValue:
         """
         Create element of this group
         """
@@ -202,7 +203,6 @@ class ImageGroup(ABC):
         """
 
 
-@dataclass(frozen=True)
 class ImageValue(ABC):
     """
     Abstract image value, e.g. a curve point or a quadratic residue modulo p
@@ -212,7 +212,7 @@ class ImageValue(ABC):
 
     @property
     @abstractmethod
-    def asn1(self) -> asn1.ImgGroupValue:
+    def asn1(self) -> _asn1.ImgGroupValue:
         """
         Convert value to an ASN.1 type so it can be serialized to DER.
 
@@ -233,7 +233,9 @@ class ImageValue(ABC):
         """
 
     @abstractmethod
-    def __pow__(self, other: Union[int, ZqValue, Fraction], modulo: int = None) -> ImageValue:
+    def __pow__(
+        self, other: Union[PgvOrInt, Fraction], modulo: Optional[int] = None
+    ) -> ImageValue:
         """
         Implement a ** b and pow(a, b), i.e. the repeated application of the group operation to `a`.
 

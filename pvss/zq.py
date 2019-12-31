@@ -5,12 +5,18 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from secrets import randbelow
+from typing import TYPE_CHECKING, Union, Any, cast
 
+from asn1crypto.core import Asn1Value
 from gmpy2 import invert, is_prime, mpz
-from lazy import lazy
 
 from . import asn1
 from .groups import PgvOrInt, PreGroup, PreGroupValue
+
+if TYPE_CHECKING:  # pragma: no cover
+    lazy = property
+else:
+    from lazy import lazy
 
 
 @dataclass(frozen=True)
@@ -21,10 +27,13 @@ class ZqGroup(PreGroup):
 
     q: mpz
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """
         Ensure that q and 2q+1 are prime.
         """
+
+        if self.q < 0:
+            raise ValueError("q is negative")
 
         if not is_prime(self.q):
             raise ValueError("q not prime")
@@ -32,7 +41,7 @@ class ZqGroup(PreGroup):
         if not is_prime(self.q * 2 + 1):
             raise ValueError("2q + 1 not prime")
 
-    def __call__(self, value: Union[int, asn1.PreGroupValue]) -> ZqValue:
+    def __call__(self, value: Union[int, Asn1Value]) -> ZqValue:
         """
         Convert an integer into a group element
 
@@ -44,10 +53,10 @@ class ZqGroup(PreGroup):
             return ZqValue(self, value % self.q)
 
         if isinstance(value, asn1.PreGroupValue):
-            value = mpz(value)
-            if not 0 <= value < self.q:
+            mpz_value = mpz(int(value))
+            if not 0 <= mpz_value < self.q:
                 raise ValueError("Not a valid group element")
-            return ZqValue(self, value)
+            return ZqValue(self, mpz_value)
 
         raise TypeError(f"Type not supported: {type(value)}")
 
@@ -71,7 +80,7 @@ class ZqGroup(PreGroup):
             Random group element
         """
 
-        return self(randbelow(self.q))
+        return self(randbelow(int(self.q)))
 
     @property
     def rand_nonzero(self) -> ZqValue:
@@ -82,7 +91,7 @@ class ZqGroup(PreGroup):
             Random group element
         """
 
-        return self(1 + randbelow(self.q - 1))
+        return self(1 + randbelow(int(self.q - 1)))
 
     def __repr__(self) -> str:
         """
@@ -95,7 +104,7 @@ class ZqGroup(PreGroup):
         return f"ZqGroup({self.q})"
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class ZqValue(PreGroupValue):
     """
     Elements of ZqGroup
@@ -197,3 +206,16 @@ class ZqValue(PreGroupValue):
             Value converted to an ASN.1 value
         """
         return asn1.PreGroupValue(int(self._value))
+
+    def __eq__(self, other: Any) -> bool:
+        """
+        """
+
+        if isinstance(other, ZqValue):
+            # "is not" is by intention to force usage of the identical group.
+            if self.group is not other.group:
+                return False
+
+            return self._value == other._value
+
+        return self._value == cast(int, other)

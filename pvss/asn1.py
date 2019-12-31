@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from hashlib import md5
-from typing import ByteString, Type, TypeVar, Union, cast
+from typing import Any as _Any
+from typing import ByteString, Dict, Type, TypeVar, cast
 
 from asn1crypto.core import (
     Any,
@@ -21,11 +21,10 @@ _T = TypeVar("_T", bound="VerifiedLoader")
 
 class VerifiedLoader(Asn1Value):
     @classmethod
-    def load(cls: Type[_T], encoded_data: ByteString, strict: bool = False, **kwargs) -> _T:
-        self = cast(_T, super().load(encoded_data, strict=True, **kwargs))
-
-        if type(self) is not cls:
-            raise TypeError(type(self))
+    def load(
+        cls: Type[_T], encoded_data: ByteString, strict: bool = False, **kwargs: Dict[str, _Any]
+    ) -> _T:
+        self = super().load(encoded_data, strict=True, **kwargs)
 
         if self.dump(True) != encoded_data:
             raise ValueError("Does not encode back to original")
@@ -43,13 +42,12 @@ class ImgGroupValue(Choice):
 
 
 class PvssAlgorithmId(ObjectIdentifier):
-    # XXX Should get a better OID
-    _base_oid = f'2.25.{int.from_bytes(md5(b"pvss").digest(), "little")}.1'
+    _base_oid = "1.3.6.1.4.1.55040.1.0.1"
     _map = {
         _base_oid + ".0": "qr_mod_p",
         _base_oid + ".1": "ristretto_255",
-        _base_oid + ".2": "ristretto_448",
-        _base_oid + ".3": "nist_p_256",
+        # _base_oid + ".2": "ristretto_448", (or decaf?)
+        # _base_oid + ".3": "nist_p_256", (or decaf?)
     }
 
 
@@ -60,8 +58,8 @@ class SystemParameters(VerifiedLoader, Sequence):
     _oid_specs = {
         "qr_mod_p": Integer,
         "ristretto_255": Null,
-        "ristretto_448": Null,
-        "nist_p_256": Null,
+        # "ristretto_448": Null,
+        # "nist_p_256": Null,
     }
 
 
