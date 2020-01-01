@@ -115,3 +115,8 @@ def test_pvss() -> None:
 
     with pytest.raises(ValueError, match="No matching public key found"):
         pvss.reencrypt_share(priv_emily)
+
+    pvss2 = Pvss()
+    pvss2.params = params  # type: ignore
+    with pytest.raises(KeyError):
+        pvss2.shares = shares  # type: ignore
