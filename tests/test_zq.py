@@ -1,8 +1,10 @@
 from typing import cast
-from pvss.zq import ZqGroup
-from pvss.asn1 import PreGroupValue
-from gmpy2 import mpz
+
 import pytest
+from gmpy2 import mpz
+from pvss.asn1 import PreGroupValue
+from pvss.zq import ZqGroup
+
 
 def test_init() -> None:
     with pytest.raises(ValueError, match="q is negative"):
@@ -43,7 +45,7 @@ def test_rand_nonzero() -> None:
 
 
 def test_repr() -> None:
-    assert repr(ZqGroup(mpz(53))) == 'ZqGroup(53)'
+    assert repr(ZqGroup(mpz(53))) == "ZqGroup(53)"
 
 
 def test_value() -> None:
@@ -70,5 +72,5 @@ def test_value() -> None:
 
     # 1 = 16 * 10 - 3 * 53
     assert 16 == grp(10).inv
-    assert repr(grp(10)) == 'ZqGroup(53)(10)'
-    assert grp(10).asn1.dump() == b'\x02\x01\x0a'
+    assert repr(grp(10)) == "ZqGroup(53)(10)"
+    assert grp(10).asn1.dump() == b"\x02\x01\x0a"

@@ -1,18 +1,22 @@
 from typing import Dict
 
-from pvss.pvss import Pvss, Poly, zip_strict, prod, PrivateKey
-from pvss.zq import ZqGroup
-from pvss.qr import create_qr_params, QrParameters
-from gmpy2 import mpz
-
 import pytest
+from gmpy2 import mpz
+from pvss.pvss import Poly, PrivateKey, Pvss, prod, zip_strict
+from pvss.qr import QrParameters, create_qr_params
+from pvss.zq import ZqGroup
 
 
 def test_zip_strict() -> None:
-    assert list(zip_strict("foo", "bar", "baz")) == [('f','b','b'), ('o', 'a', 'a'), ('o', 'r', 'z')]
+    assert list(zip_strict("foo", "bar", "baz")) == [
+        ("f", "b", "b"),
+        ("o", "a", "a"),
+        ("o", "r", "z"),
+    ]
 
     with pytest.raises(ValueError, match="Not all iters finished at the same time"):
         list(zip_strict("foo", "baaar", "baz"))
+
 
 def test_poly() -> None:
     grp = ZqGroup(mpz(11))
@@ -26,7 +30,7 @@ def test_poly() -> None:
 
     assert p(5) == grp(2 + 35 + 0 + 125)
 
-    assert repr(p) == 'Poly([ZqGroup(11)(2), ZqGroup(11)(7), ZqGroup(11)(0), ZqGroup(11)(1)])'
+    assert repr(p) == "Poly([ZqGroup(11)(2), ZqGroup(11)(7), ZqGroup(11)(0), ZqGroup(11)(1)])"
 
 
 def test_prod() -> None:
@@ -41,7 +45,7 @@ def test_prod() -> None:
 def test_pvss() -> None:
     pvss = Pvss()
     params = create_qr_params(pvss, 23)
-    assert params == bytes.fromhex('3011060c2b0601040183ae0001000100020117')
+    assert params == bytes.fromhex("3011060c2b0601040183ae0001000100020117")
     pvss.params = params  # type: ignore
 
     # Luckily no two generators are the same in this tiny group.
@@ -56,7 +60,7 @@ def test_pvss() -> None:
                 pvss.add_shareholder_public_key(pub)
                 break
             except ValueError as ex:  # pragma: no cover
-                if 'Duplicate public key' not in str(ex):
+                if "Duplicate public key" not in str(ex):
                     raise
         keys[name] = priv
 
@@ -96,12 +100,11 @@ def test_pvss() -> None:
     chris_share = pvss.reencrypt_share(keys["Chris"])
     with pytest.raises(ValueError, match="could not compute same challenge"):
         pvss.add_reencrypted_share(chris_share[:-1] + bytes(((chris_share[-1] + 1) % 256,)))
-            
+
     pvss.add_reencrypted_share(chris_share)
 
     with pytest.raises(ValueError, match="Duplicate index"):
         pvss.add_reencrypted_share(chris_share)
-
 
     secret1 = pvss.reconstruct_secret(recp_priv)
     assert secret0 == secret1
@@ -110,7 +113,7 @@ def test_pvss() -> None:
         priv_emily, pub_emily = pvss.create_keypair("Emily")
         if priv_emily not in keys.values():
             break
-        
+
         pass  # pragma: no cover
 
     with pytest.raises(ValueError, match="No matching public key found"):

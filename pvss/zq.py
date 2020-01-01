@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from secrets import randbelow
-from typing import TYPE_CHECKING, Union, Any, cast
+from typing import TYPE_CHECKING, Any, Union, cast
 
 from asn1crypto.core import Asn1Value
 from gmpy2 import invert, is_prime, mpz

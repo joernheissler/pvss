@@ -108,6 +108,7 @@ class Asn1Object(ABC):
 
 _T2 = TypeVar("_T2", bound="SystemParameters")
 
+
 class SystemParameters(Asn1Object):
     ALGO: str
     asn1: _asn1.SystemParameters
