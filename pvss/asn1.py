@@ -127,7 +127,7 @@ class ReencryptedChallenge(Sequence):
         ("parameters", SystemParameters),
         ("public_keys", PublicKeys),
         ("shares", SharedSecret),
-        ("recipient_public_key", PublicKey),
+        ("receiver_public_key", PublicKey),
         ("rand_c2pub", ImgGroupValue),
         ("rand_pub", ImgGroupValue),
         ("rand_c1", ImgGroupValue),

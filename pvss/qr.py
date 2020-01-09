@@ -50,7 +50,9 @@ def create_qr_params(pvss: Pvss, params: Union[int, str, ByteString]) -> bytes:
 
         params = int(cast(Integer, DHParameters.load(bytes(params))["p"]))
 
-    return QrParameters.create(pvss, params).der
+    result = QrParameters.create(pvss, params).der
+    pvss.set_params(result)
+    return result
 
 
 class QrParameters(SystemParameters):

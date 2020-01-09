@@ -113,19 +113,18 @@ class SystemParameters(Asn1Object):
     ALGO: str
     asn1: _asn1.SystemParameters
 
-    _algos: Dict[str, Type[SystemParameters]] = {}
-
     def __new__(cls, pvss: Pvss, asn1: _asn1.SystemParameters) -> SystemParameters:
         algo = asn1["algorithm"].native
-        impl = cls._algos[algo]
+        impl: Type[SystemParameters]
+        if algo == "qr_mod_p":
+            from . import qr
+            impl = qr.QrParameters
+        elif algo == "ristretto_255":
+            from . import ristretto_255
+            impl = ristretto_255.Ristretto255Parameters
+        else:
+            raise ValueError(f"Algorithm {algo} not implemented")
         return cast(SystemParameters, super().__new__(impl))
-
-    def __init_subclass__(cls) -> None:
-        """
-        Register sub classes
-        """
-        super().__init_subclass__()
-        cls._algos[cls.ALGO] = cls
 
     @classmethod
     def create(cls: Type[_T2], pvss: Pvss, params: Any) -> _T2:
@@ -249,7 +248,7 @@ class Secret(Asn1Object):
 
         Args:
             pvss: Pvss object with public values
-            der_private_key: Recipient's Private key
+            der_private_key: Receiver's Private key
 
         Returns:
             Secret
@@ -309,10 +308,7 @@ class Share(Asn1Object):
         """
         """
 
-        for pub in self.pvss.shareholder_public_keys:
-            if pub.name == self.pub_name:
-                return pub
-        raise KeyError
+        return self.pvss.user_public_keys[self.pub_name]
 
     @lazy
     def share(self) -> ImageValue:
@@ -420,8 +416,8 @@ class SharedSecret(Asn1Object):
             Random secret and the encrypted shares
         """
 
-        # Shareholder public keys
-        pub = pvss.shareholder_public_keys
+        # user public keys
+        pub = pvss.user_public_keys.values()
 
         # polynomials, chosen from Z_q
         alpha = Poly(
@@ -433,13 +429,13 @@ class SharedSecret(Asn1Object):
             pvss.params.pre_group(0),
         )
 
-        # Secret to be shared
+        # secret to be split
         S = Secret.create(pvss, (pvss.params.G ** alpha(0)) * (pvss.params.H ** beta(0)))
 
         # commitments for coeffs
         C = [(pvss.params.g ** a) * (pvss.params.h ** b) for a, b in zip(alpha, beta)]
 
-        # Encrypted shares
+        # encrypted shares
         Y = [(pi.pub0 ** alpha(i)) * (pi.pub1 ** beta(i)) for i, pi in enumerate(pub, 1)]
 
         # X_i computed by prover
@@ -554,17 +550,21 @@ class ReencryptedShare(Asn1Object):
     def challenge(self) -> int:
         return int.from_bytes(self.digest, "big")
 
+    @property
+    def share(self) -> Share:
+        return self.pvss.shares.shares[self.idx - 1]
+
     def _validate(self) -> None:
         """`
         """
 
         minus_c = -self.challenge
-        pub = self.pvss.shareholder_public_keys[self.idx - 1]
+        pub = self.share.pub
 
         ry = (
             (self.c2 ** self.response_priv)
-            * (self.pvss.recipient_public_key.pub0 ** self.response_v)
-            * (self.pvss.recipient_public_key.pub1 ** self.response_w)
+            * (self.pvss.receiver_public_key.pub0 ** self.response_v)
+            * (self.pvss.receiver_public_key.pub1 ** self.response_w)
         ) * (self.pvss.shares.shares[self.idx - 1].share ** minus_c)
 
         ru = ((self.params.G * self.params.H) ** self.response_priv) * (
@@ -592,7 +592,7 @@ class ReencryptedShare(Asn1Object):
 
         Args:
             pvss: Pvss object with public values
-            private_key: A shareholder's private key
+            private_key: A user's private key
 
         Returns:
             Re-encrypted share
@@ -608,14 +608,14 @@ class ReencryptedShare(Asn1Object):
         # decrypt our share
         share = enc_share.share ** private_key.priv.inv
 
-        # Reencrypt share with Elgamal encryption using the recipient's public key
+        # Reencrypt share with Elgamal encryption using the receiver's public key
         a = pvss.params.pre_group.rand
         b = pvss.params.pre_group.rand
         c1 = (pvss.params.G ** a) * (pvss.params.H ** b)
         c2 = (
             share
-            * (pvss.recipient_public_key.pub0 ** a)
-            * (pvss.recipient_public_key.pub1 ** b)
+            * (pvss.receiver_public_key.pub0 ** a)
+            * (pvss.receiver_public_key.pub1 ** b)
         )
 
         v = -a * private_key.priv
@@ -624,8 +624,8 @@ class ReencryptedShare(Asn1Object):
 
         ry = (
             (c2 ** kpi)
-            * (pvss.recipient_public_key.pub0 ** kv)
-            * (pvss.recipient_public_key.pub1 ** kw)
+            * (pvss.receiver_public_key.pub0 ** kv)
+            * (pvss.receiver_public_key.pub1 ** kw)
         )
         ru = (pvss.params.G * pvss.params.H) ** kpi
         rc1 = (pvss.params.G ** ka) * (pvss.params.H ** kb)
@@ -722,9 +722,9 @@ class ReencryptedChallenge(Challenge):
             _asn1.ReencryptedChallenge(
                 {
                     "parameters": pvss.params.asn1,
-                    "public_keys": [pub.asn1 for pub in pvss.ordered_shareholder_public_keys],
+                    "public_keys": [share.pub.asn1 for share in pvss.shares.shares],
                     "shares": pvss.shares.asn1,
-                    "recipient_public_key": pvss.recipient_public_key.asn1,
+                    "receiver_public_key": pvss.receiver_public_key.asn1,
                     "rand_c2pub": rand_c2pub.asn1,
                     "rand_pub": rand_pub.asn1,
                     "rand_c1": rand_c1.asn1,
@@ -736,76 +736,82 @@ class ReencryptedChallenge(Challenge):
 
 class Pvss:
     _params: SystemParameters
-    _shareholder_public_keys: List[PublicKey]
+    _user_public_keys: Dict[str, PublicKey]
     _shares: SharedSecret
     _reencrypted_shares: List[ReencryptedShare]
-    _recipient_public_key: PublicKey
+    _receiver_public_key: PublicKey
 
     def __init__(self) -> None:
-        self._shareholder_public_keys = []
+        self._user_public_keys = {}
         self._reencrypted_shares = []
 
     @property
     def params(self) -> SystemParameters:
         return self._params
 
-    @params.setter
-    def params(self, data: ByteString) -> None:
-        self._params = SystemParameters.from_der(self, data)
+    def set_params(self, data: ByteString) -> SystemParameters:
+        """
+        """
+
+        params = SystemParameters.from_der(self, data)
+        if hasattr(self, "_params"):
+            raise Exception("Parameters already set")
+        self._params = params
+        return params
 
     @property
-    def shareholder_public_keys(self) -> List[PublicKey]:
-        return list(self._shareholder_public_keys)
+    def user_public_keys(self) -> Dict[str, PublicKey]:
+        return dict(self._user_public_keys)
 
-    @property
-    def ordered_shareholder_public_keys(self) -> List[PublicKey]:
+    def add_user_public_key(self, data: ByteString) -> PublicKey:
         """
-        Ordered list of public keys according to SharedSecret structure
-
-        Returns:
-            Ordered list of public keys
-        """
-        pubs = {pub.name: pub for pub in self.shareholder_public_keys}
-        return [pubs[share.pub_name] for share in self.shares.shares]
-
-    def add_shareholder_public_key(self, data: ByteString) -> None:
-        """
-        Add a shareholder public key to the internal state.
+        Add a user public key to the internal state.
 
         Args:
             data: DER encoded public key
+
+        Returns:
+            Decoded user public key.
 
         Raises:
             ValueError: On duplicate name or public key value
         """
         pub_key = PublicKey.from_der(self, data)
-        for pub in self._shareholder_public_keys:
+
+        for pub in self._user_public_keys.values():
             if pub_key.name == pub.name:
                 raise ValueError(f"Duplicate name: {pub_key.name}")
             if pub_key.pub0 == pub.pub0 or pub_key.pub1 == pub.pub1:
                 raise ValueError(
                     f"Duplicate public key value in keys {pub_key.name} and {pub.name}"
                 )
-        self._shareholder_public_keys.append(pub_key)
+        self._user_public_keys[pub_key.name] = pub_key
+        return pub_key
 
     @property
     def shares(self) -> SharedSecret:
         return self._shares
 
-    @shares.setter
-    def shares(self, data: ByteString) -> None:
-        self._shares = SharedSecret.from_der(self, data)
+    def set_shares(self, data: ByteString) -> SharedSecret:
+        shares = SharedSecret.from_der(self, data)
+        if hasattr(self, "_shares"):
+            raise Exception("Shares already set")
+        self._shares = shares
+        return shares
 
     @property
     def reencrypted_shares(self) -> List[ReencryptedShare]:
         return self._reencrypted_shares
 
-    def add_reencrypted_share(self, data: ByteString) -> None:
+    def add_reencrypted_share(self, data: ByteString) -> ReencryptedShare:
         """
         Add a re-encrypted share to the internal state.
 
         Args:
-            data: DER encoded re-encrypted share
+            data: DER encoded re-encrypted share.
+
+        Returns:
+            Decoded reencrypted share.
 
         Raises:
             ValueError: On duplicate
@@ -814,18 +820,22 @@ class Pvss:
         if reenc_share.idx in {s.idx for s in self._reencrypted_shares}:
             raise ValueError(f"Duplicate index: {reenc_share.idx}")
         self._reencrypted_shares.append(reenc_share)
+        return reenc_share
 
     @property
-    def recipient_public_key(self) -> PublicKey:
-        return self._recipient_public_key
+    def receiver_public_key(self) -> PublicKey:
+        return self._receiver_public_key
 
-    @recipient_public_key.setter
-    def recipient_public_key(self, data: ByteString) -> None:
-        self._recipient_public_key = PublicKey.from_der(self, data)
+    def set_receiver_public_key(self, data: ByteString) -> PublicKey:
+        pub = PublicKey.from_der(self, data)
+        if hasattr(self, "_receiver_public_key"):
+            raise Exception("Receiver key already set")
+        self._receiver_public_key = pub
+        return pub
 
-    def create_keypair(self, name: str) -> Tuple[bytes, bytes]:
+    def create_user_keypair(self, name: str) -> Tuple[bytes, bytes]:
         """
-        Create a random key pair.
+        Create a random key pair for a user.
 
         Args:
             name: Name of key; will be included in the public key.
@@ -834,7 +844,24 @@ class Pvss:
             DER encoded private key and public key
         """
         priv = PrivateKey.create_random(self)
-        return priv.der, priv.pub(name).der
+        pub = priv.pub(name).der
+        self.add_user_public_key(pub)
+        return priv.der, pub
+
+    def create_receiver_keypair(self, name: str) -> Tuple[bytes, bytes]:
+        """
+        Create a random key pair for the receiver.
+
+        Args:
+            name: Name of key; will be included in the public key.
+
+        Returns:
+            DER encoded private key and public key
+        """
+        priv = PrivateKey.create_random(self)
+        pub = priv.pub(name).der
+        self.set_receiver_public_key(pub)
+        return priv.der, pub
 
     def share_secret(self, qualified_size: int) -> Tuple[bytes, bytes]:
         """
@@ -848,6 +875,7 @@ class Pvss:
         """
 
         secret, shares = SharedSecret.create_shared_secret(self, qualified_size)
+        self.set_shares(shares.der)
         return secret.der, shares.der
 
     def reencrypt_share(self, der_private_key: ByteString) -> bytes:
@@ -856,21 +884,23 @@ class Pvss:
         re-encrypt it with another public key
 
         Args:
-            der_private_key: A shareholder's DER encoded private key
+            der_private_key: A user's DER encoded private key
 
         Returns:
             DER encoded re-encrypted share
         """
 
         private_key = PrivateKey.from_der(self, der_private_key)
-        return ReencryptedShare.reencrypt(self, private_key).der
+        share = ReencryptedShare.reencrypt(self, private_key).der
+        self.add_reencrypted_share(share)
+        return share
 
     def reconstruct_secret(self, der_private_key: ByteString) -> bytes:
         """
         Decrypt the re-encrypted shares with the private key and reconstruct the secret
 
         Args:
-            der_private_key: Recipient's DER encoded private key
+            der_private_key: Receiver's DER encoded private key
 
         Returns:
             DER encoded secret
@@ -881,6 +911,10 @@ class Pvss:
 
 
 class Poly(Sequence[PreGroupValue]):
+    """
+    Polynomial
+    """
+
     _coeffs: List[PreGroupValue]
     _zero: PreGroupValue
 

@@ -11,14 +11,19 @@ from pvss.zq import ZqGroup
 
 
 def test_params() -> None:
-    pvss = Pvss()
-
     der = bytes.fromhex("3011060c2b0601040183ae0001000100020117")
-
     params_pem = "foobar\n-----BEGIN DH PARAMETERS-----\nMAYCARcCAQI=\n-----END DH PARAMETERS-----\nspam\n"
+
+    pvss = Pvss()
     assert der == create_qr_params(pvss, 23)
+
+    pvss = Pvss()
     assert der == create_qr_params(pvss, b"\x30\x06\x02\x01\x17\x02\x01\x02")
+
+    pvss = Pvss()
     assert der == create_qr_params(pvss, params_pem)
+
+    pvss = Pvss()
     assert der == create_qr_params(pvss, params_pem.encode())
 
 

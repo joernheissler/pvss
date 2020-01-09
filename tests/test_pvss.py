@@ -1,3 +1,4 @@
+from itertools import count
 from typing import Dict
 
 import pytest
@@ -42,11 +43,18 @@ def test_prod() -> None:
         prod([])
 
 
+def test_unknown_algo() -> None:
+    pvss = Pvss()
+    with pytest.raises(ValueError, match="Algorithm 2.999 not implemented"):
+        pvss.set_params(bytes.fromhex("3006060288370500"))
+
+
 def test_pvss() -> None:
     pvss = Pvss()
     params = create_qr_params(pvss, 23)
     assert params == bytes.fromhex("3011060c2b0601040183ae0001000100020117")
-    pvss.params = params  # type: ignore
+    with pytest.raises(Exception, match="Parameters already set"):
+        pvss.set_params(params)
 
     # Luckily no two generators are the same in this tiny group.
     assert len({pvss.params.g, pvss.params.h, pvss.params.G, pvss.params.H}) == 4
@@ -56,8 +64,7 @@ def test_pvss() -> None:
         # keys are created by random and we've got lots of duplicates. Try again.
         while True:
             try:
-                priv, pub = pvss.create_keypair(name)
-                pvss.add_shareholder_public_key(pub)
+                priv, pub = pvss.create_user_keypair(name)
                 break
             except ValueError as ex:  # pragma: no cover
                 if "Duplicate public key" not in str(ex):
@@ -65,43 +72,37 @@ def test_pvss() -> None:
         keys[name] = priv
 
     with pytest.raises(ValueError, match="Duplicate name:"):
-        pvss.add_shareholder_public_key(pub)
+        pvss.add_user_public_key(pub)
 
     with pytest.raises(ValueError):
-        pvss.create_keypair("")
+        pvss.create_user_keypair("")
 
     assert PrivateKey.from_der(pvss, keys["Alice"]) == PrivateKey.from_der(pvss, keys["Alice"])
     assert PrivateKey.from_der(pvss, keys["Alice"]) != PrivateKey.from_der(pvss, keys["Boris"])
     assert PrivateKey.from_der(pvss, keys["Alice"]) != "Alice"
 
-    while True:
-        priv, pub = pvss.create_keypair("David")
-        if priv in keys.values():
-            with pytest.raises(ValueError, match="Duplicate public key"):
-                pvss.add_shareholder_public_key(pub)
-            break
-        else:  # pragma: no cover
-            pass
+    with pytest.raises(ValueError, match="Duplicate public key"):
+        pvss.add_user_public_key(PrivateKey.from_der(pvss, keys["Alice"]).pub("Dup").der)
 
     secret0, shares = pvss.share_secret(2)
     with pytest.raises(ValueError, match="could not compute same challenge"):
-        pvss.shares = shares[:-1] + bytes(((shares[-1] + 1) % 256,))  # type: ignore
-    pvss.shares = shares  # type: ignore
+        pvss.set_shares(shares[:-1] + bytes(((shares[-1] + 1) % 256,)))
+    with pytest.raises(Exception, match="Shares already set"):
+        pvss.set_shares(shares)
 
     assert secret0[0] == 48
     assert shares[0] == 48
 
-    recp_priv, recp_pub = pvss.create_keypair("Recipient")
-    pvss.recipient_public_key = recp_pub  # type: ignore
+    recp_priv, recp_pub = pvss.create_receiver_keypair("Recipient")
+    with pytest.raises(Exception, match="Receiver key already set"):
+        pvss.set_receiver_public_key(recp_pub)
 
-    pvss.add_reencrypted_share(pvss.reencrypt_share(keys["Alice"]))
+    pvss.reencrypt_share(keys["Alice"])
     with pytest.raises(Exception, match="Need at least 2 shares, only got 1"):
         pvss.reconstruct_secret(recp_priv)
     chris_share = pvss.reencrypt_share(keys["Chris"])
     with pytest.raises(ValueError, match="could not compute same challenge"):
         pvss.add_reencrypted_share(chris_share[:-1] + bytes(((chris_share[-1] + 1) % 256,)))
-
-    pvss.add_reencrypted_share(chris_share)
 
     with pytest.raises(ValueError, match="Duplicate index"):
         pvss.add_reencrypted_share(chris_share)
@@ -110,7 +111,7 @@ def test_pvss() -> None:
     assert secret0 == secret1
 
     while True:
-        priv_emily, pub_emily = pvss.create_keypair("Emily")
+        priv_emily = PrivateKey.create_random(pvss).der
         if priv_emily not in keys.values():
             break
 
@@ -120,6 +121,6 @@ def test_pvss() -> None:
         pvss.reencrypt_share(priv_emily)
 
     pvss2 = Pvss()
-    pvss2.params = params  # type: ignore
+    pvss2.set_params(params)
     with pytest.raises(KeyError):
-        pvss2.shares = shares  # type: ignore
+        pvss2.set_shares(shares)

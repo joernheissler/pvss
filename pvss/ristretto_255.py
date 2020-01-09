@@ -28,7 +28,9 @@ group_order = 2 ** 252 + 27742317777372353535851937790883648493
 
 
 def create_ristretto_255_parameters(pvss: Pvss) -> bytes:
-    return Ristretto255Parameters.create(pvss, None).der
+    result = Ristretto255Parameters.create(pvss, None).der
+    pvss.set_params(result)
+    return result
 
 
 class Ristretto255Parameters(SystemParameters):
