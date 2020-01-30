@@ -135,7 +135,7 @@ class ReencryptedChallenge(Sequence):
     ]
 
 
-class ReencryptedShare(Sequence):
+class ReencryptedShare(VerifiedLoader, Sequence):
     _fields = [
         ("idx", Integer),
         ("c1", ImgGroupValue),
@@ -146,4 +146,15 @@ class ReencryptedShare(Sequence):
         ("response_v", PreGroupValue),
         ("response_w", PreGroupValue),
         ("challenge", OctetString),
+    ]
+
+
+class PvssContainer(Choice):
+    _alternatives = [
+        ('parameters', SystemParameters, {"explicit": 0}),
+        ('priv_key', PrivateKey, {"explicit": 1}),
+        ('user_pub', PublicKey, {"explicit": 2}),
+        ('recv_pub', PublicKey, {"explicit": 3}),
+        ('shared_secret', SharedSecret, {"explicit": 4}),
+        ('reencrypted_share', ReencryptedShare, {"explicit": 5}),
     ]
