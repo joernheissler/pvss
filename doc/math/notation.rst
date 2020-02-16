@@ -5,7 +5,7 @@ Notation used in formulas
    :header-rows: 1
    :widths: auto
 
-   * - This
+   * - Heissler
      - Schoen-makers
      - Tang et al.
      - Description
@@ -107,7 +107,7 @@ Notation used in formulas
      - :math:`\alpha_j`
      - Secret coefficients for :math:`f_0`
 
-   * - :math:`\alpha_{j_1}`
+   * - :math:`{\alpha_j}_1`
      -
      - :math:`\beta_j`
      - Secret coefficients for :math:`f_1`
