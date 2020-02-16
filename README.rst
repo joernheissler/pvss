@@ -34,7 +34,7 @@ the encrypted share is public and it can be verified that the users followed the
 
 Documentation
 -------------
-Full documentation can be found at https://pvss.readthedocs.org/.
+Full documentation can be found at https://pvss.1e8.de/.
 
 Installation
 ------------
