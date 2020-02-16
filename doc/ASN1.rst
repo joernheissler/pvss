@@ -14,6 +14,23 @@ The contents of the messages can be accessed using any standard ASN.1 tools, e.g
     $ dumpasn1 -ade message
     $ openssl asn1parse -inform der -in message
 
+
+Message sizes
+-------------
+For the Ristretto255 group, typical message sizes are:
+
+* ``Secret``: 36 Bytes.
+* ``PreGroupValue``: (up to) 34 Bytes.
+* ``ImgGroupValue``: 34 Bytes.
+* ``SystemParameters``: 18 Bytes.
+* ``PrivateKey``: (up to) 36 Bytes.
+* ``PublicKey``: :math:`72 + |name|$` Bytes.
+* ``SharedSecret``: (up to) :math:`44 + 34t + 106n + |names|` Bytes.
+* ``ReencryptedShare``: (up to) 279 Bytes.
+
+For the ``qr_mod_p`` group, the size depends on the safe prime. With a 4096 bit
+prime, the messages are about 12-16 times as large.
+
 Object Identifiers
 ------------------
 Prefix: ``1.3.6.1.4.1.55040.1.0`` (iso.org.dod.internet.private.enterprise.heissler-informatik.floss.pvss)
