@@ -1,0 +1,8 @@
+..
+  - Random values for commitments:           :math:`{k_i}_0, {k_i}_1 \in_R Z_q`
+  - Encrypted share:                         :math:`Y_i  = {y_i}_0^{f_0(i)}  {y_i}_1^{f_1(i)}`
+  - Random commitment for :math:`Y_i`:       :math:`Y'_i = {y_i}_0^{{k_i}_0} {y_i}_1^{{k_i}_1}`
+  - Share with alternative generators:       :math:`X_i  =     g_0^{f_0(i)}      g_1^{f_1(i)}`
+  - Random commitment for :math:`X_i`:       :math:`X'_i =     g_0^{{k_i}_0}     g_1^{{k_i}_1}`
+
+

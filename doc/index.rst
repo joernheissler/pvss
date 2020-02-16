@@ -32,56 +32,23 @@ disclose their share of the secret but use `ElGamal encryption
 separate receiver user who will then reassemble the secret. Like all other communication,
 the encrypted share is public and it can be verified that the users followed the protocol.
 
-Documentation
--------------
-Full documentation can be found at https://pvss.readthedocs.org/.
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
 
-Installation
-------------
-``PVSS``'s dependencies are:
-
-* python (>= 3.7)
-* At least one of:
-    + `libsodium <https://libsodium.org/>`_ (>= 1.0.18, recommended, for `Ristretto255 <https://ristretto.group/>`_ group)
-
-      On Debian (Bullseye / 11 and later) or Ubuntu (Eoan / 19.10 and later):
-
-      .. code-block:: console
-
-          # apt install libsodium23
-
-    + `gmpy2 <https://pypi.org/project/gmpy2/>`_ (Group of quadratic residues modulo a large safe prime)
-
-You can install ``PVSS`` with ``pip``:
-
-.. code-block:: console
-
-    $ pip install pvss
-
-And optionally:
-
-.. code-block:: console
-
-    $ pip install gmpy2
+   install
+   usecases
+   workflow
+   cli
+   api
+   math/index
+   ASN1
+   security
+   glossary
 
 
-Example
--------
-The following sequence of shell commands is executed by six different users who
-share a data directory. E.g. use git to synchronize it between the users. All
-files inside ``datadir`` are public. All files outside of it are private.
-
-.. code-block:: console
-
-    (init)     $ pvss datadir genparams rst255 
-    (alice)    $ pvss datadir genuser Alice alice.key 
-    (boris)    $ pvss datadir genuser Boris boris.key 
-    (chris)    $ pvss datadir genuser Chris chris.key 
-    (dealer)   $ pvss datadir splitsecret 2 secret0.der 
-    (receiver) $ pvss datadir genreceiver recv.key 
-    (boris)    $ pvss datadir reencrypt boris.key 
-    (alice)    $ pvss datadir reencrypt alice.key 
-    (receiver) $ pvss datadir reconstruct recv.key secret1.der 
-
-``secret0.der`` and ``secret1.der`` should compare equal.
-The *dealer* and *receiver* can encrypt an actual payload by using that file as a shared key.
+Indices and tables
+------------------
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

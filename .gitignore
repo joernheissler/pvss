@@ -7,3 +7,4 @@ dist
 *.egg-info
 .coverage
 coverage_html_report
+doc/_build
