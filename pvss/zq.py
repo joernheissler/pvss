@@ -4,11 +4,18 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from os import environ
 from secrets import randbelow
 from typing import TYPE_CHECKING, Any, Union, cast
 
 from asn1crypto.core import Asn1Value
-from gmpy2 import invert, is_prime, mpz
+
+try:
+    from gmpy2 import invert, is_prime, mpz
+except ImportError:
+    # Work around the fact that gmpy2 is not installed in the readthedocs build image
+    if "READTHEDOCS" not in environ:
+        raise
 
 from . import asn1
 from .groups import PgvOrInt, PreGroup, PreGroupValue

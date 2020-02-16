@@ -7,12 +7,22 @@ from __future__ import annotations
 import hmac
 from dataclasses import dataclass
 from fractions import Fraction
+from os import environ
 from typing import TYPE_CHECKING, ByteString, Optional, Union, cast
 
 from asn1crypto.algos import DHParameters
 from asn1crypto.core import Asn1Value, Integer
 from asn1crypto.pem import unarmor
-from gmpy2 import invert, is_prime, legendre, mpz, powmod
+
+try:
+    from gmpy2 import invert, is_prime, legendre, mpz, powmod
+except ImportError:
+    # Work around the fact that gmpy2 is not installed in the readthedocs build image
+    if "READTHEDOCS" not in environ:
+        raise
+else:
+    # Will be fixed by gmpy2 2.1
+    mpz_type = mpz if isinstance(mpz, type) else type(mpz(0))
 
 from .asn1 import ImgGroupValue
 from .groups import ImageGroup, ImageValue, PgvOrInt
@@ -23,9 +33,6 @@ if TYPE_CHECKING:  # pragma: no cover
     lazy = property
 else:
     from lazy import lazy
-
-# Will be fixed by gmpy2 2.1
-mpz_type = mpz if isinstance(mpz, type) else type(mpz(0))
 
 
 def create_qr_params(pvss: Pvss, params: Union[int, str, ByteString]) -> bytes:
