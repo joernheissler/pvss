@@ -97,14 +97,14 @@ This proves knowledge of values :math:`x_i, v_0, v_1, w_0, w_1` such that:
  * :math:`a = G_0^{w_0} \cdot G_1^{w_1}`
  * :math:`Y_i = b^{x_i} \cdot {y_r}_0^{v_0} \cdot {y_r}_1^{v_1}`
 
-To prove that :math:`e = a^{x_i} \cdot G_0^{v_0} \cdot G_1^{v_1}`, remember that the verifier computes :math:`r_1`
+To prove that :math:`e = a^{x_i} \cdot G_0^{v_0} \cdot G_1^{v_1}`, remember that the verifier computes :math:`e'`
 and includes it in the hash input.
 
-:math:`r_1 = a^{s_{x_1}} \cdot G_0^{s_{v_0}} \cdot G_1^{s_{v_1}}
+:math:`e' = a^{s_{x_1}} \cdot G_0^{s_{v_0}} \cdot G_1^{s_{v_1}}
 = a^{k_{x_i} + cx_i} \cdot G_0^{k_{v_0} + cv_0} \cdot G_1^{k_{v_1} + cv_1}
 = (a^{x_i} \cdot G_0^{v_0} \cdot G_1^{v_1})^c \cdot (a^{k_{x_i}} \cdot G_0^{k_{v_0}} \cdot G_1^{k_{v_1}})`
 
-If :math:`e = a^{x_i} \cdot G_0^{v_0} \cdot G_1^{v_1}` holds, the prover can easily compute :math:`r_1 = a^{k_{x_i}} \cdot G_0^{k_{v_0}} \cdot G_1^{k_{v_1}}` which does not depend on :math:`c`. Otherwise, the value of :math:`r_1` would depend on :math:`c` and vice versa. It may be possible to find such a pair, but it's infeasible. So we assume that it does hold.
+If :math:`e = a^{x_i} \cdot G_0^{v_0} \cdot G_1^{v_1}` holds, the prover can easily compute :math:`e' = a^{k_{x_i}} \cdot G_0^{k_{v_0}} \cdot G_1^{k_{v_1}}` which does not depend on :math:`c`. Otherwise, the value of :math:`e'` would depend on :math:`c` and vice versa. It may be possible to find such a pair, but it's infeasible. So we assume that it does hold.
 
 Next, substitute :math:`a`:
 :math:`e = (G_0^{w_0} \cdot G_1^{w_1})^{x_i} \cdot G_0^{v_0} \cdot G_1^{v_1}

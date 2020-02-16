@@ -30,14 +30,17 @@ mpz_type = mpz if isinstance(mpz, type) else type(mpz(0))
 
 def create_qr_params(pvss: Pvss, params: Union[int, str, ByteString]) -> bytes:
     """
-    Create QR parameters.
+    Create and set QR parameters.
 
     If params is str or a ByteString, assume it's a diffie-hellman parameter file
     such as created by "openssl dhparam 4096", either DER or PEM encoded.
 
-    Params:
+    Args:
         pvss: Pvss object with public values
         params: if int, must be a safe prime, otherwise must be a DH params file with a safe prime.
+
+    Returns:
+        DER encoded QR system parameters.
     """
 
     if not isinstance(params, int):
@@ -181,7 +184,7 @@ class QrValue(ImageValue):
         """
         Implement the group operation a * b.
 
-        Params:
+        Args:
             other: Second operand
 
         Returns:
@@ -200,7 +203,7 @@ class QrValue(ImageValue):
         Implement a ** b and pow(a, b).
         If b is a Fraction c/d, compute a ** (c * (d^-1))
 
-        Params:
+        Args:
             other: exponent
             modulo: Not supported, must be None
 

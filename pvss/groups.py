@@ -94,7 +94,7 @@ class PreGroupValue(ABC):
         """
         Implement a + b
 
-        Params:
+        Args:
             other: Second operand
 
         Returns:
@@ -105,7 +105,7 @@ class PreGroupValue(ABC):
         """
         Implement b + a
 
-        Params:
+        Args:
             other: First operand
 
         Returns:
@@ -119,7 +119,7 @@ class PreGroupValue(ABC):
         """
         Implement a * b
 
-        Params:
+        Args:
             other: Second operand
 
         Returns:
@@ -130,7 +130,7 @@ class PreGroupValue(ABC):
         """
         Implement b * a
 
-        Params:
+        Args:
             other: First operand
 
         Returns:
@@ -225,7 +225,7 @@ class ImageValue(ABC):
         """
         Implement the group operation a * b.
 
-        Params:
+        Args:
             other: Second operand
 
         Returns:
@@ -239,7 +239,7 @@ class ImageValue(ABC):
         """
         Implement a ** b and pow(a, b), i.e. the repeated application of the group operation to `a`.
 
-        Params:
+        Args:
             other: exponent
             modulo: Not supported, must be None
 

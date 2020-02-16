@@ -56,7 +56,7 @@ def prod(items: Iterable[_T0], initializer: Optional[_T0] = None) -> _T0:
     """
     Product function, like sum() but with multiplication.
 
-    Params:
+    Args:
         items: items to multiply
         initializer: Optional initializer
 
@@ -735,6 +735,10 @@ class ReencryptedChallenge(Challenge):
 
 
 class Pvss:
+    """
+    Main class to work with Pvss. Stores all public messages and exposes the PVSS operations.
+    """
+
     _params: SystemParameters
     _user_public_keys: Dict[str, PublicKey]
     _shares: SharedSecret
@@ -742,15 +746,36 @@ class Pvss:
     _receiver_public_key: PublicKey
 
     def __init__(self) -> None:
+        """
+        The constructor takes no parameters.
+        """
+
         self._user_public_keys = {}
         self._reencrypted_shares = []
 
     @property
     def params(self) -> SystemParameters:
+        """
+        Retrieve system parameters.
+
+        Returns:
+            The system parameters.
+        """
+
         return self._params
 
     def set_params(self, data: ByteString) -> SystemParameters:
         """
+        Set system parameters.
+
+        Args
+            data: DER encoded system parameters.
+
+        Returns:
+            Decoded system parameters.
+
+        Raises:
+            Exception: If already set.
         """
 
         params = SystemParameters.from_der(self, data)
@@ -761,6 +786,13 @@ class Pvss:
 
     @property
     def user_public_keys(self) -> Dict[str, PublicKey]:
+        """
+        Retrieve all user public keys, as mapping from username to PublicKey.
+
+        Returns:
+            Mapping of username to PublicKey.
+        """
+
         return dict(self._user_public_keys)
 
     def add_user_public_key(self, data: ByteString) -> PublicKey:
@@ -790,9 +822,29 @@ class Pvss:
 
     @property
     def shares(self) -> SharedSecret:
+        """
+        Retrieve the shares of the secret.
+
+        Returns:
+            Shares of the secret.
+        """
+
         return self._shares
 
     def set_shares(self, data: ByteString) -> SharedSecret:
+        """
+        Set the shares of the secret.
+
+        Args:
+            data: DER encoded secret shares.
+
+        Returns:
+            Decoded secret shares.
+
+        Raises:
+            Exception: If already set.
+        """
+
         shares = SharedSecret.from_der(self, data)
         if hasattr(self, "_shares"):
             raise Exception("Shares already set")
@@ -801,6 +853,13 @@ class Pvss:
 
     @property
     def reencrypted_shares(self) -> List[ReencryptedShare]:
+        """
+        Retrieve the list of reencrypted shares.
+
+        Returns:
+            List of reencrypted shares.
+        """
+
         return self._reencrypted_shares
 
     def add_reencrypted_share(self, data: ByteString) -> ReencryptedShare:
@@ -824,9 +883,29 @@ class Pvss:
 
     @property
     def receiver_public_key(self) -> PublicKey:
+        """
+        Retrieve receiver's public key.
+
+        Returns:
+            Receiver's public key.
+        """
+
         return self._receiver_public_key
 
     def set_receiver_public_key(self, data: ByteString) -> PublicKey:
+        """
+        Add the receiver's public key to the internal state.
+
+        Args:
+            data: DER encoded receiver's public key.
+
+        Returns:
+            Decoded receiver's public key.
+
+        Raises:
+            Exception: On duplicate
+        """
+
         pub = PublicKey.from_der(self, data)
         if hasattr(self, "_receiver_public_key"):
             raise Exception("Receiver key already set")

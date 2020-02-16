@@ -137,7 +137,7 @@ class ZqValue(PreGroupValue):
         """
         Implement a + b
 
-        Params:
+        Args:
             other: Second operand
 
         Returns:
@@ -159,7 +159,7 @@ class ZqValue(PreGroupValue):
         """
         Implement a * b
 
-        Params:
+        Args:
             other: Second operand
 
         Returns:

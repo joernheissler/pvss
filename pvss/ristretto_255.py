@@ -24,10 +24,21 @@ else:
     from lazy import lazy
 
 
+# Order of the Ristretto255 group.
 group_order = 2 ** 252 + 27742317777372353535851937790883648493
 
 
 def create_ristretto_255_parameters(pvss: Pvss) -> bytes:
+    """
+    Create and set Ristretto255 parameters.
+
+    Args:
+        pvss: Pvss object with public values
+
+    Returns:
+        DER encoded Ristretto255 system parameters.
+    """
+
     result = Ristretto255Parameters.create(pvss, None).der
     pvss.set_params(result)
     return result

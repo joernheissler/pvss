@@ -7,6 +7,8 @@ which contains all public messages from the PVSS workflow.
 
 Help for the available commands is included in the tool: ``pvss --help``
 
+.. _cli.example:
+
 Example
 -------
 The following sequence of shell commands is executed by six different users who
