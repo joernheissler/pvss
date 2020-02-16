@@ -118,9 +118,11 @@ class SystemParameters(Asn1Object):
         impl: Type[SystemParameters]
         if algo == "qr_mod_p":
             from . import qr
+
             impl = qr.QrParameters
         elif algo == "ristretto_255":
             from . import ristretto_255
+
             impl = ristretto_255.Ristretto255Parameters
         else:
             raise ValueError(f"Algorithm {algo} not implemented")
@@ -209,7 +211,10 @@ class PublicKey(Asn1Object):
 
     @lazy
     def pub(self) -> Tuple[ImageValue, ImageValue]:
-        return self.params.img_group(self.asn1["pub0"]), self.params.img_group(self.asn1["pub1"])
+        return (
+            self.params.img_group(self.asn1["pub0"]),
+            self.params.img_group(self.asn1["pub1"]),
+        )
 
 
 class Secret(Asn1Object):
@@ -409,21 +414,31 @@ class SharedSecret(Asn1Object):
         # polynomials, chosen from Z_q
         alpha = (
             Poly(
-            (pvss.params.pre_group.rand for __ in range(qualified_size)),
-            pvss.params.pre_group(0),
-        ), Poly(
-            (pvss.params.pre_group.rand for __ in range(qualified_size)),
-            pvss.params.pre_group(0),
-        ))
+                (pvss.params.pre_group.rand for __ in range(qualified_size)),
+                pvss.params.pre_group(0),
+            ),
+            Poly(
+                (pvss.params.pre_group.rand for __ in range(qualified_size)),
+                pvss.params.pre_group(0),
+            ),
+        )
 
         # secret to be split
-        S = Secret.create(pvss, (pvss.params.G[0] ** alpha[0](0)) * (pvss.params.G[1] ** alpha[1](0)))
+        S = Secret.create(
+            pvss, (pvss.params.G[0] ** alpha[0](0)) * (pvss.params.G[1] ** alpha[1](0))
+        )
 
         # commitments for coeffs
-        C = [(pvss.params.g[0] ** coeff[0]) * (pvss.params.g[1] ** coeff[1]) for coeff in zip(alpha[0], alpha[1])]
+        C = [
+            (pvss.params.g[0] ** coeff[0]) * (pvss.params.g[1] ** coeff[1])
+            for coeff in zip(alpha[0], alpha[1])
+        ]
 
         # encrypted shares
-        Y = [(pi.pub[0] ** alpha[0](i)) * (pi.pub[1] ** alpha[1](i)) for i, pi in enumerate(pub, 1)]
+        Y = [
+            (pi.pub[0] ** alpha[0](i)) * (pi.pub[1] ** alpha[1](i))
+            for i, pi in enumerate(pub, 1)
+        ]
 
         # X_i computed by prover
         X = [
@@ -513,11 +528,17 @@ class ReencryptedShare(Asn1Object):
 
     @lazy
     def response_v(self) -> Tuple[PreGroupValue, PreGroupValue]:
-        return self.params.pre_group(self.asn1["response_v0"]), self.params.pre_group(self.asn1["response_v1"])
+        return (
+            self.params.pre_group(self.asn1["response_v0"]),
+            self.params.pre_group(self.asn1["response_v1"]),
+        )
 
     @lazy
     def response_w(self) -> Tuple[PreGroupValue, PreGroupValue]:
-        return self.params.pre_group(self.asn1["response_w0"]), self.params.pre_group(self.asn1["response_w1"])
+        return (
+            self.params.pre_group(self.asn1["response_w0"]),
+            self.params.pre_group(self.asn1["response_w1"]),
+        )
 
     @lazy
     def digest(self) -> bytes:
@@ -547,16 +568,18 @@ class ReencryptedShare(Asn1Object):
         rand_pub = ((self.params.G[0] * self.params.G[1]) ** self.response_priv) * (
             (pub.pub[0] * pub.pub[1]) ** minus_c
         )
-        rand_elg_a = ((self.params.G[0] ** self.response_w[0]) * (self.params.G[1] ** self.response_w[1])) * (
-            self.elg_a ** minus_c
-        )
+        rand_elg_a = (
+            (self.params.G[0] ** self.response_w[0]) * (self.params.G[1] ** self.response_w[1])
+        ) * (self.elg_a ** minus_c)
         rand_id = (
             (self.elg_a ** self.response_priv)
             * (self.params.G[0] ** self.response_v[0])
             * (self.params.G[1] ** self.response_v[1])
         )
 
-        challenge = ReencryptedChallenge.create(self.pvss, rand_pub, rand_share, rand_elg_a, rand_id)
+        challenge = ReencryptedChallenge.create(
+            self.pvss, rand_pub, rand_share, rand_elg_a, rand_id
+        )
 
         if challenge.digest != self.digest:
             raise ValueError("Verification failed: could not compute same challenge")
@@ -615,7 +638,9 @@ class ReencryptedShare(Asn1Object):
         resp_v = (kv[0] + v[0] * c, kv[1] + v[1] * c)
         resp_w = (kw[0] + w[0] * c, kw[1] + w[1] * c)
 
-        return ReencryptedShare.create(pvss, idx, elg_a, elg_b, resp_priv, resp_v, resp_w, challenge.digest)
+        return ReencryptedShare.create(
+            pvss, idx, elg_a, elg_b, resp_priv, resp_v, resp_w, challenge.digest
+        )
 
 
 class Challenge(Asn1Object):
