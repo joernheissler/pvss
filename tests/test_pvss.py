@@ -51,13 +51,13 @@ def test_unknown_algo() -> None:
 
 def test_pvss() -> None:
     pvss = Pvss()
-    params = create_qr_params(pvss, 23)
-    assert params == bytes.fromhex("3011060c2b0601040183ae0001000100020117")
+    params = create_qr_params(pvss, 47)
+    assert params == bytes.fromhex("3011060c2b0601040183ae000100010002012f")
     with pytest.raises(Exception, match="Parameters already set"):
         pvss.set_params(params)
 
     # Luckily no two generators are the same in this tiny group.
-    assert len({pvss.params.g, pvss.params.h, pvss.params.G, pvss.params.H}) == 4
+    assert len({pvss.params.g[0], pvss.params.g[1], pvss.params.G[0], pvss.params.G[1]}) == 4
 
     keys: Dict[str, bytes] = {}
     for name in ["Alice", "Boris", "Chris"]:

@@ -94,8 +94,8 @@ class Share(Sequence):
     _fields = [
         ("pub", UTF8String),
         ("share", ImgGroupValue),
-        ("response_x", PreGroupValue),
-        ("response_y", PreGroupValue),
+        ("response_f0", PreGroupValue),
+        ("response_f1", PreGroupValue),
     ]
 
 
@@ -147,23 +147,23 @@ class ReencryptedChallenge(Sequence):
         ("public_keys", PublicKeys),
         ("shares", SharedSecret),
         ("receiver_public_key", PublicKey),
-        ("rand_c2pub", ImgGroupValue),
         ("rand_pub", ImgGroupValue),
-        ("rand_c1", ImgGroupValue),
-        ("rand_one", ImgGroupValue),
+        ("rand_share", ImgGroupValue),
+        ("rand_elg_a", ImgGroupValue),
+        ("rand_id", ImgGroupValue),
     ]
 
 
 class ReencryptedShare(VerifiedLoader, Sequence):
     _fields = [
         ("idx", Integer),
-        ("c1", ImgGroupValue),
-        ("c2", ImgGroupValue),
+        ("elg_a", ImgGroupValue),
+        ("elg_b", ImgGroupValue),
         ("response_priv", PreGroupValue),
-        ("response_a", PreGroupValue),
-        ("response_b", PreGroupValue),
-        ("response_v", PreGroupValue),
-        ("response_w", PreGroupValue),
+        ("response_v0", PreGroupValue),
+        ("response_v1", PreGroupValue),
+        ("response_w0", PreGroupValue),
+        ("response_w1", PreGroupValue),
         ("challenge", OctetString),
     ]
 

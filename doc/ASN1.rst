@@ -100,8 +100,8 @@ ASN.1 module
     Share ::= SEQUENCE {
         pub                     UTF8String,
         share                   ImgGroupValue,
-        responseX               PreGroupValue,
-        responseY               PreGroupValue
+        responseF0              PreGroupValue,
+        responseF1              PreGroupValue
     }
 
     -- Sequence of per user values of SharedSecret
@@ -145,22 +145,22 @@ ASN.1 module
         publicKeys              PublicKeys,
         shares                  SharedSecret,
         receiverPublicKey       PublicKey,
-        randC2pub               ImgGroupValue,
         randPub                 ImgGroupValue,
-        randC1                  ImgGroupValue,
-        randOne                 ImgGroupValue
+        randShare               ImgGroupValue,
+        randElgA                ImgGroupValue,
+        randId                  ImgGroupValue
     }
 
     -- User's share after re-encryption
     ReencryptedShare ::= SEQUENCE {
         idx                     INTEGER,
-        c1                      ImgGroupValue,
-        c2                      ImgGroupValue,
+        elgA                    ImgGroupValue,
+        elgB                    ImgGroupValue,
         responsePriv            PreGroupValue,
-        responseA               PreGroupValue,
-        responseB               PreGroupValue,
-        responseV               PreGroupValue,
-        responseW               PreGroupValue,
+        responseV0              PreGroupValue,
+        responseV1              PreGroupValue,
+        responseW0              PreGroupValue,
+        responseW1              PreGroupValue,
         challenge               OCTET STRING
     }
 
