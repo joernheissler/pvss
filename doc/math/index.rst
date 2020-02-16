@@ -1,10 +1,9 @@
-Mathematical description and proofs
-===================================
+Algorithms
+==========
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-   groups
    notation
    operations/index

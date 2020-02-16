@@ -1,8 +1,11 @@
-API Reference
+Library Usage
 =============
 The public API is accessible through the :class:`Pvss` class. Each instance stores the public
 state of a complete ``PVSS`` workflow. Messages created in once instance must be transferred
 somehow (network, git repo, etc.) and be imported into the other instances.
+
+Example
+-------
 
 The following code is equivalent to the :ref:`CLI example <cli.example>`, if it would be ran
 inside a single python process:
@@ -68,6 +71,9 @@ inside a single python process:
     secret1 = pvss_receiver.reconstruct_secret(recv_priv)
 
     print(secret0 == secret1)
+
+API reference
+-------------
 
 .. autofunction:: pvss.qr.create_qr_params
 
