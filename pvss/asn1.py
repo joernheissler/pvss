@@ -32,13 +32,17 @@ class VerifiedLoader(Asn1Value):
         return self
 
 
+# fmt: off
 class PreGroupValue(Integer):
     """
     """
 
 
 class ImgGroupValue(Choice):
-    _alternatives = [("QrValue", Integer), ("ECPoint", OctetString)]
+    _alternatives = [
+        ("QrValue", Integer),
+        ("ECPoint", OctetString),
+    ]
 
 
 class PvssAlgorithmId(ObjectIdentifier):
@@ -52,7 +56,10 @@ class PvssAlgorithmId(ObjectIdentifier):
 
 
 class SystemParameters(VerifiedLoader, Sequence):
-    _fields = [("algorithm", PvssAlgorithmId), ("parameters", Any)]
+    _fields = [
+        ("algorithm", PvssAlgorithmId),
+        ("parameters", Any),
+    ]
 
     _oid_pair = ("algorithm", "parameters")
     _oid_specs = {
@@ -64,15 +71,23 @@ class SystemParameters(VerifiedLoader, Sequence):
 
 
 class PublicKey(VerifiedLoader, Sequence):
-    _fields = [("name", UTF8String), ("pub0", ImgGroupValue), ("pub1", ImgGroupValue)]
+    _fields = [
+        ("name", UTF8String),
+        ("pub0", ImgGroupValue),
+        ("pub1", ImgGroupValue),
+    ]
 
 
 class PrivateKey(VerifiedLoader, Sequence):
-    _fields = [("priv", PreGroupValue)]
+    _fields = [
+        ("priv", PreGroupValue),
+    ]
 
 
 class Secret(VerifiedLoader, Sequence):
-    _fields = [("secret", ImgGroupValue)]
+    _fields = [
+        ("secret", ImgGroupValue),
+    ]
 
 
 class Share(Sequence):
@@ -93,7 +108,11 @@ class Coefficients(SequenceOf):
 
 
 class SharedSecret(VerifiedLoader, Sequence):
-    _fields = [("shares", Shares), ("coefficients", Coefficients), ("challenge", OctetString)]
+    _fields = [
+        ("shares", Shares),
+        ("coefficients", Coefficients),
+        ("challenge", OctetString),
+    ]
 
 
 class HashInputUser(Sequence):
@@ -151,10 +170,11 @@ class ReencryptedShare(VerifiedLoader, Sequence):
 
 class PvssContainer(Choice):
     _alternatives = [
-        ('parameters', SystemParameters, {"explicit": 0}),
-        ('priv_key', PrivateKey, {"explicit": 1}),
-        ('user_pub', PublicKey, {"explicit": 2}),
-        ('recv_pub', PublicKey, {"explicit": 3}),
-        ('shared_secret', SharedSecret, {"explicit": 4}),
-        ('reencrypted_share', ReencryptedShare, {"explicit": 5}),
+        ("parameters", SystemParameters, {"explicit": 0}),
+        ("priv_key", PrivateKey, {"explicit": 1}),
+        ("user_pub", PublicKey, {"explicit": 2}),
+        ("recv_pub", PublicKey, {"explicit": 3}),
+        ("shared_secret", SharedSecret, {"explicit": 4}),
+        ("reencrypted_share", ReencryptedShare, {"explicit": 5}),
     ]
+# fmt: on

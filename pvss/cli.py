@@ -41,6 +41,7 @@ def pvss_from_datadir(datadir: Path) -> Pvss:
         for path in (datadir / "reencrypted").iterdir():
             reenc_share = pvss.add_reencrypted_share(path.read_bytes())
             logging.info(f"Loaded reencrypted share {path} ({reenc_share.share.pub.name})")
+
     return pvss
 
 

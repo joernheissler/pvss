@@ -5,7 +5,7 @@ build-backend = "poetry.masonry.api"
 [tool.poetry]
 name = "pvss"
 version = "0.1.0"
-description = "Public Verifiable Secret Sharing in Python"
+description = "Public Verifiable Secret Splitting in Python"
 authors = ["Jörn Heissler <nosuchaddress@joern.heissler.de>"]
 license = "MIT"
 readme = "README.rst"
@@ -14,6 +14,7 @@ repository = "https://github.com/joernheissler/pvss"
 keywords = [
     "pvss",
     "secret sharing",
+    "secret splitting",
     "shamir",
     "zero knowledge",
     "ristretto25519",
