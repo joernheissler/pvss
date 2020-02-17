@@ -25,3 +25,5 @@ And optionally:
 .. code-block:: console
 
     $ pip install gmpy2
+
+Source code is available on `GitHub <https://github.com/joernheissler/pvss>`_.

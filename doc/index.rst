@@ -38,13 +38,14 @@ the encrypted share is public and it can be verified that the users followed the
 
    install
    usecases
-   workflow
+   workflow/index
    cli
    api
    math/index
    ASN1
    security
    glossary
+   changelog
 
 
 Indices and tables

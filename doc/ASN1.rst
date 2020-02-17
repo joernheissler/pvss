@@ -24,8 +24,8 @@ For the Ristretto255 group, typical message sizes are:
 * ``ImgGroupValue``: 34 Bytes.
 * ``SystemParameters``: 18 Bytes.
 * ``PrivateKey``: (up to) 36 Bytes.
-* ``PublicKey``: :math:`72 + |name|$` Bytes.
-* ``SharedSecret``: (up to) :math:`44 + 34t + 106n + |names|` Bytes.
+* ``PublicKey``: 72 + \|name\| Bytes.
+* ``SharedSecret``: (up to) 44 + 34t + 106n + \|names\| Bytes.
 * ``ReencryptedShare``: (up to) 279 Bytes.
 
 For the ``qr_mod_p`` group, the size depends on the safe prime. With a 4096 bit
@@ -192,3 +192,68 @@ ASN.1 module
     }
 
     END
+
+
+Examples for Qr
+---------------
+
+.. _asn1.examples.systemparameters.qr:
+
+::
+
+    SystemParameters for Qr, p=3395894518307:
+    30 16
+       06 0c  2b 06 01 04 01 83 ae 00 01 00 01 00
+       02 06  03 16 ab 16 22 23
+   
+  
+.. _asn1.examples.privatekey.qr:
+
+::
+
+    PrivateKey (Qr):
+    30 08
+       02 06  01 73 bf 82 ee c5
+
+.. _asn1.examples.publickey.qr:
+
+::
+
+    PublicKey (Qr):
+    30 1f
+       0c 0e  4a c3 b6 72 6e 20 48 65 69 73 73 6c 65 72
+       02 06  00 c6 f6 e4 2a e5
+       02 05  52 ba c7 b3 5d
+
+
+Examples for Ristretto255
+-------------------------
+.. _asn1.examples.systemparameters.rst255:
+
+::
+
+    SystemParameters for Rst255, always the same:
+    30 10
+       06 0c  2b 06 01 04 01 83 ae 00 01 00 01 01
+       05 00
+
+.. _asn1.examples.privatekey.rst255:
+
+::
+
+    PrivateKey (rst255):
+    30 21
+       02 1f  75 84 4f 25 73 27 05 32 4d ac fe 1f ed f8 5f a9
+              88 d0 9b 32 ab 32 e4 72 3e d4 f1 18 f0 3d 9a
+
+.. _asn1.examples.publickey.rst255:
+
+::
+
+    PublicKey (rst255):
+    30 54
+       0c 0e  4a c3 b6 72 6e 20 48 65 69 73 73 6c 65 72
+       04 20  ba 50 ea 13 2a a6 ae cc d1 24 55 20 b0 12 82 66
+              da ab 14 94 06 b8 62 f1 fc a7 2d 3f 0c 21 6f 31
+       04 20  6e a8 f7 6b 11 85 65 8a 36 a2 49 26 34 75 5d 1d
+              1b 8a 38 b2 7d 8f 42 80 be 2e 0a 97 4e 53 22 17
