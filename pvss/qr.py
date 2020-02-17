@@ -16,7 +16,7 @@ from asn1crypto.pem import unarmor
 
 try:
     from gmpy2 import invert, is_prime, legendre, mpz, powmod
-except ImportError:
+except ImportError:  # pragma: no cover
     # Work around the fact that gmpy2 is not installed in the readthedocs build image
     if "READTHEDOCS" not in environ:
         raise

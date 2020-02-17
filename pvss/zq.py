@@ -12,7 +12,7 @@ from asn1crypto.core import Asn1Value
 
 try:
     from gmpy2 import invert, is_prime, mpz
-except ImportError:
+except ImportError:  # pragma: no cover
     # Work around the fact that gmpy2 is not installed in the readthedocs build image
     if "READTHEDOCS" not in environ:
         raise

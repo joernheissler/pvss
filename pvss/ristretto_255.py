@@ -164,7 +164,7 @@ class _Lib:
         scalar_mul.restype = None
         scalar_mul.argtypes = ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p
 
-    except Exception:
+    except Exception:  # pragma: no cover
         # Work around the fact that libsodium is not installed in the readthedocs build image
         if "READTHEDOCS" not in environ:
             raise
