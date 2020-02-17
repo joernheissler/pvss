@@ -1,3 +1,5 @@
+.. _math.operations.receiverkey:
+
 Receiver key pair generation
 ----------------------------
 The recipient generates a private key :math:`x_r \in Z_q^*` and the corresponding public key

@@ -1,3 +1,5 @@
+.. _math.operations.splitting:
+
 Secret Splitting
 ----------------
 The dealer computes a random shared secret :math:`S` and splits it into encrypted shares :math:`Y_i`

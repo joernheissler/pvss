@@ -1,3 +1,5 @@
+.. _workflow.initialization:
+
 Initialization
 ==============
 Mathematical parameters must be chosen, such as a `cyclic group
@@ -7,6 +9,8 @@ In this implementation, the generators are determined deterministically by using
 function. This eliminates the need to communicate the generators. It is vital that nobody has
 knowledge of the discrete logarith of any generator with regards to any other.  Hopefully the
 below strategies meet the `Rigidity <https://safecurves.cr.yp.to/rigid.html>`_ property.
+
+.. _workflow.initialization.rst255:
 
 Ristretto255 group
 ------------------
@@ -19,7 +23,7 @@ operations are designed to be used for zero-knowledge protocols such as PVSS.
 carry out the various mathematical operations.
 
 Generators are determined by computing HMAC-SHA2-512 over the DER encoding of the :ref:`system
-parameters <asn1.examples.systemparameters.rst255>` and the LaTeX notation of the generator name
+parameters <asn1.examples.rst255.systemparameters>` and the LaTeX notation of the generator name
 is used as the hmac key, i.e. ``"G_0", "G_1", "g_0", "g_1"``.  The mac is passed through the
 ``point_from_hash`` function to determine the generator points.
 
@@ -30,6 +34,7 @@ The generators are:
 * :math:`g_0`: ``90199c1a0446a5bb8fb88de3266e27b74565b14c74de153f8054302434040a7b``
 * :math:`g_1`: ``0cd425c734d93957091c5871eb2c1f8dd222c56310c4df58117bce9bf212d820``
 
+.. _workflow.initialization.qr:
 
 Quadratic Residue Group
 -----------------------
@@ -47,6 +52,6 @@ To determine generators, HMAC-SHA2-256 is repeatedly computed and the results co
 at least twice the bit size of the prime :math:`p` is reached.  The LaTeX notation of the
 generator name is used as the key for the MAC operation. The input to the MAC is the previous
 MAC. As initial value, the DER representation of the :ref:`system parameters
-<asn1.examples.systemparameters.qr>` is used. Finally, the concatenated MACs are interpreted as
+<asn1.examples.qr.systemparameters>` is used. Finally, the concatenated MACs are interpreted as
 an integer and squared to get a quadratic residue, i.e.  a generator for the group. The system
 parameters depend on the prime :math:`p`, so there will be different generators for each prime. 

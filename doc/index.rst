@@ -1,3 +1,5 @@
+.. _index:
+
 Publicly Verifiable Secret Splitting in python
 ==============================================
 This project is a python (>= 3.7) implementation (library and CLI) of
@@ -32,6 +34,8 @@ disclose their share of the secret but use `ElGamal encryption
 separate receiver user who will then reassemble the secret. Like all other communication,
 the encrypted share is public and it can be verified that the users followed the protocol.
 
+.. _index.toc:
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
@@ -45,6 +49,7 @@ the encrypted share is public and it can be verified that the users followed the
    ASN1
    security
    glossary
+   contributing
    changelog
 
 

@@ -1,3 +1,5 @@
+.. _math.notation:
+
 Notation used in formulas
 =========================
 

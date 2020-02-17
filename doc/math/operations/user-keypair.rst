@@ -1,3 +1,5 @@
+.. _math.operations.userkey:
+
 Key Pair generation
 -------------------
 

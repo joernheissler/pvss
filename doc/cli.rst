@@ -1,3 +1,5 @@
+.. _cli:
+
 Command Line Interface
 ======================
 A single command line utility ``pvss`` is provided to serve as an example on how to use the API.
@@ -29,6 +31,8 @@ files inside ``datadir`` are public. All files outside of it are private.
 
 ``secret0.der`` and ``secret1.der`` should compare equal.
 The *dealer* and *receiver* can encrypt an actual payload by using that file as a shared key.
+
+.. _cli.directory:
 
 Directory Structure
 -------------------

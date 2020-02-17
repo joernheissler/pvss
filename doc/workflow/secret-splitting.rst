@@ -1,3 +1,5 @@
+.. _workflow.splitting:
+
 Secret splitting
 ================
 The *dealer* randomly generates a secret, computes a share for each user and encrypts each share

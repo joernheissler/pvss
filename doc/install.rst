@@ -1,3 +1,5 @@
+.. _installation:
+
 Installation
 ============
 ``PVSS``'s dependencies are:

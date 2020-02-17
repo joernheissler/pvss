@@ -1,3 +1,5 @@
+.. _math.operations.reencryption:
+
 Share reencryption
 ------------------
 A user can decrypt their share and use ElGamal Encryption to re-encrypt it with the receiver's public key.

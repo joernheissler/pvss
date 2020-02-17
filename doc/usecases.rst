@@ -1,7 +1,11 @@
+.. _usecases:
+
 Use Cases
 =========
 The generic use case of PVSS is to create a secure and durable backup of some highly valuable
 information.
+
+.. _usecases.keys:
 
 Offline backup for cryptographic keys
 -------------------------------------
@@ -34,6 +38,8 @@ Once access to the private key is needed, a special receiver user is created. :m
 users need to re-encrypt their key shares with the receiver's public key. Only the receiver can
 then reassemble and decrypt the private key. The key could be stored directly into some HSM and
 then wiped from the receiver's memory.
+
+.. _usecases.data:
 
 Backup of arbitrary data
 ------------------------

@@ -1,3 +1,5 @@
+.. _asn1:
+
 Data structures
 ===============
 PVSS is a protocol between multiple parties who must exchange a number of messages. Those messages are
@@ -14,6 +16,7 @@ The contents of the messages can be accessed using any standard ASN.1 tools, e.g
     $ dumpasn1 -ade message
     $ openssl asn1parse -inform der -in message
 
+.. _asn1.sizes:
 
 Message sizes
 -------------
@@ -30,6 +33,8 @@ For the Ristretto255 group, typical message sizes are:
 
 For the ``qr_mod_p`` group, the size depends on the safe prime. With a 4096 bit
 prime, the messages are about 12-16 times as large.
+
+.. _asn1.oid:
 
 Object Identifiers
 ------------------
@@ -56,6 +61,8 @@ Parent: https://github.com/joernheissler/oids
 
    * - ``1.1``
      - ``ristretto_255``: https://ristretto.group/
+
+.. _asn1.module:
 
 ASN.1 module
 ------------
@@ -193,11 +200,12 @@ ASN.1 module
 
     END
 
+.. _asn1.examples.qr:
 
 Examples for Qr
 ---------------
 
-.. _asn1.examples.systemparameters.qr:
+.. _asn1.examples.qr.systemparameters:
 
 ::
 
@@ -207,7 +215,7 @@ Examples for Qr
        02 06  03 16 ab 16 22 23
    
   
-.. _asn1.examples.privatekey.qr:
+.. _asn1.examples.qr.privatekey:
 
 ::
 
@@ -215,7 +223,7 @@ Examples for Qr
     30 08
        02 06  01 73 bf 82 ee c5
 
-.. _asn1.examples.publickey.qr:
+.. _asn1.examples.qr.publickey:
 
 ::
 
@@ -226,9 +234,11 @@ Examples for Qr
        02 05  52 ba c7 b3 5d
 
 
+.. _asn1.examples.rst255:
+
 Examples for Ristretto255
 -------------------------
-.. _asn1.examples.systemparameters.rst255:
+.. _asn1.examples.rst255.systemparameters:
 
 ::
 
@@ -237,7 +247,7 @@ Examples for Ristretto255
        06 0c  2b 06 01 04 01 83 ae 00 01 00 01 01
        05 00
 
-.. _asn1.examples.privatekey.rst255:
+.. _asn1.examples.rst255.privatekey:
 
 ::
 
@@ -246,7 +256,7 @@ Examples for Ristretto255
        02 1f  75 84 4f 25 73 27 05 32 4d ac fe 1f ed f8 5f a9
               88 d0 9b 32 ab 32 e4 72 3e d4 f1 18 f0 3d 9a
 
-.. _asn1.examples.publickey.rst255:
+.. _asn1.examples.rst255.publickey:
 
 ::
 
