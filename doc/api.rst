@@ -3,7 +3,7 @@
 Library Usage
 =============
 The public API is accessible through the :class:`Pvss` class. Each instance stores the public
-state of a complete ``PVSS`` :ref:`workflow <workflow>`. Messages created in once instance must be transferred
+state of a complete ``PVSS`` :ref:`workflow <workflow>`. Messages created in one instance must be transferred
 somehow (network, git repo, etc.) and be imported into the other instances.
 
 .. _lib.example:

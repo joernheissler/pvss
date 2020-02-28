@@ -106,7 +106,7 @@ Notation used in formulas
    * - :math:`j`
      - :math:`j`
      - :math:`j`
-     - Indices for coefficients, :math:`0 \leq j \lt t`
+     - Indices for coefficients, :math:`0 \leq j < t`
 
    * - :math:`k_…`
      - :math:`w`

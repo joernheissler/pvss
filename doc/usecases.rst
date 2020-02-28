@@ -31,7 +31,7 @@ For the other use cases, there is no easy solution. But the next best thing is P
 
 When generating a new private key, PVSS is used to create a random secret. The private key is
 encrypted symmetrically with this secret, e.g. with AES-GCM. The random secret is split among
-:math:`n` semi-trusted users. It is defined that any :math:`1 \lt t \lt n` of those users can
+:math:`n` semi-trusted users. It is defined that any :math:`1 < t < n` of those users can
 cooperate to reassemble the secret.
 
 Once access to the private key is needed, a special receiver user is created. :math:`t` of the
@@ -48,5 +48,5 @@ create and split a new random secret which is used to symmetrically encrypt (e.g
 backupped data.  The encrypted data (along with the PVSS files) is then stored with high
 durability in mind.
 
-For restoring the data, any :math:`1 \lt t \lt n` of the users cooperate to reassemble the
+For restoring the data, any :math:`1 < t < n` of the users cooperate to reassemble the
 secret key.
