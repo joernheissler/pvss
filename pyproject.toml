@@ -11,6 +11,7 @@ license = "MIT"
 readme = "README.rst"
 homepage = "https://github.com/joernheissler/pvss"
 repository = "https://github.com/joernheissler/pvss"
+documentation = "https://pvss.1e8.de/"
 keywords = [
     "pvss",
     "secret sharing",
@@ -30,7 +31,7 @@ classifiers = [
     [tool.poetry.dependencies]
     python = "^3.7"
     click = "^7.0"
-    asn1crypto = "^1.3.0"
+    asn1crypto = "^1.4.0"
     lazy = "^1.4"
     sphinx = { version = "^2.4", optional = true }
     sphinx-rtd-theme = { version = "^0.4", optional = true }
@@ -65,7 +66,7 @@ skip_install = true
 whitelist_externals = poetry
 commands =
     poetry install -vvv
-    poetry run mypy --strict pvss tests
+    poetry run mypy --strict --no-strict-equality pvss tests
     poetry run coverage erase
     poetry run coverage run -m pytest -v --strict tests
     poetry run coverage html
