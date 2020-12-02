@@ -3,7 +3,7 @@
 Initialization
 --------------
 
-Choose a prime order group :math:`G_q` in which computing discrete logarithms is infeasible.
+Choose a prime order group :math:`G_q` of order :math:`q` in which computing discrete logarithms is infeasible.
 Also choose four distinct generators :math:`g_0,g_1,G_0,G_1` for it.
 
 No party must know the discrete logarithm of any generator with respect to any other. Therefore those

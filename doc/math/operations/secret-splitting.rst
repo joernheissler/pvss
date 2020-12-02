@@ -11,10 +11,10 @@ To achieve this, the dealer carries out the following steps:
 * | Define how many shares are required to reconstruct the secret: :math:`t \in [1,n]`.
   | This is also known as the size of the *qualified subset* of users.
 
-* Choose two polynomials with random coefficients:
+* Choose random coefficients to form two polynomials:
 
-  - :math:`f_0(i) = \sum\limits_{j=0}^{t-1} {\alpha_{j}}_0 i^j,~ {\alpha_{j}}_0 \in_R Z_q`
-  - :math:`f_1(i) = \sum\limits_{j=0}^{t-1} {\alpha_{j}}_1 i^j,~ {\alpha_{j}}_1 \in_R Z_q`
+  - :math:`f_0(i) = \sum\limits_{j=0}^{t-1} {\alpha_{j}}_0 \cdot i^j,~ {\alpha_{j}}_0 \in_R Z_q`
+  - :math:`f_1(i) = \sum\limits_{j=0}^{t-1} {\alpha_{j}}_1 \cdot i^j,~ {\alpha_{j}}_1 \in_R Z_q`
 
 * | Compute the shared secret:
   | :math:`S = G_0^{f_0(0)} G_1^{f_1(0)} = G_0^{{\alpha_0}_0} G_1^{{\alpha_0}_1}`.
