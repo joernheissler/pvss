@@ -75,7 +75,7 @@ def write_public_random(path: Path, contents: bytes) -> None:
     type=click.Path(file_okay=False, resolve_path=True),
     callback=lambda ctx, param, value: Path(value),
     required=True,
-    metavar="DATADIR",
+    metavar="<DATADIR>",
 )
 @click.pass_context
 def cli(ctx: click.Context, datadir: Path) -> None:
@@ -112,7 +112,7 @@ def genparams() -> None:
 
 
 @genparams.command("qr")
-@click.argument("dhparams", metavar="DHPARAMS", type=click.File(mode="rb"))
+@click.argument("dhparams", metavar="<DHPARAMS>", type=click.File(mode="rb"))
 @click.pass_context
 def genparams_qr(ctx: click.Context, dhparams: BufferedIOBase) -> None:
     """
@@ -151,10 +151,10 @@ def genparams_rst255(ctx: click.Context) -> None:
 
 
 @cli.command()
-@click.argument("name", metavar="NAME")
+@click.argument("name", metavar="<NAME>")
 @click.argument(
     "keyfile",
-    metavar="KEYFILE",
+    metavar="<KEYFILE>",
     type=click.Path(dir_okay=False, resolve_path=True),
     callback=lambda ctx, param, value: Path(value),
 )
@@ -177,7 +177,7 @@ def genuser(ctx: click.Context, name: str, keyfile: Path) -> None:
 @cli.command()
 @click.argument(
     "keyfile",
-    metavar="KEYFILE",
+    metavar="<KEYFILE>",
     type=click.Path(dir_okay=False, resolve_path=True),
     callback=lambda ctx, param, value: Path(value),
 )
@@ -196,10 +196,10 @@ def genreceiver(ctx: click.Context, keyfile: Path, name: str) -> None:
 
 
 @cli.command()
-@click.argument("min_shares", metavar="MIN_SHARES", type=int)
+@click.argument("min_shares", metavar="<MIN_SHARES>", type=int)
 @click.argument(
     "secretfile",
-    metavar="SECRETFILE",
+    metavar="<SECRETFILE>",
     type=click.Path(dir_okay=False, resolve_path=True),
     callback=lambda ctx, param, value: Path(value),
 )
@@ -221,7 +221,7 @@ def splitsecret(ctx: click.Context, min_shares: int, secretfile: Path) -> None:
 
 
 @cli.command()
-@click.argument("keyfile", metavar="KEYFILE", type=click.File(mode="rb"))
+@click.argument("keyfile", metavar="<KEYFILE>", type=click.File(mode="rb"))
 @click.pass_context
 def reencrypt(ctx: click.Context, keyfile: BufferedIOBase) -> None:
     """
@@ -236,10 +236,10 @@ def reencrypt(ctx: click.Context, keyfile: BufferedIOBase) -> None:
 
 
 @cli.command()
-@click.argument("keyfile", metavar="KEYFILE", type=click.File(mode="rb"))
+@click.argument("keyfile", metavar="<KEYFILE>", type=click.File(mode="rb"))
 @click.argument(
     "secretfile",
-    metavar="SECRETFILE",
+    metavar="<SECRETFILE>",
     type=click.Path(dir_okay=False, resolve_path=True),
     callback=lambda ctx, param, value: Path(value),
 )
