@@ -26,7 +26,7 @@ else:
 
 
 # Order of the Ristretto255 group.
-group_order = 2 ** 252 + 27742317777372353535851937790883648493
+_RST_255_GROUP_ORDER = 2 ** 252 + 27742317777372353535851937790883648493
 
 
 def create_ristretto_255_parameters(pvss: Pvss) -> bytes:
@@ -211,7 +211,7 @@ class Ristretto255Group(ImageGroup):
 
     @property
     def len(self) -> int:
-        return group_order
+        return _RST_255_GROUP_ORDER
 
     def __repr__(self) -> str:
         return "Ristretto255Group()"
@@ -323,7 +323,7 @@ class Ristretto255ScalarGroup(PreGroup):
 
         if isinstance(value, _asn1.PreGroupValue):
             value = int(value)
-            if not 0 <= value < group_order:
+            if not 0 <= value < _RST_255_GROUP_ORDER:
                 raise ValueError("Not a valid group element")
             res = ctypes.create_string_buffer(value.to_bytes(32, "little"), 32)
             return Ristretto255Scalar(self, res)
@@ -358,7 +358,7 @@ class Ristretto255ScalarGroup(PreGroup):
             group size
         """
 
-        return group_order
+        return _RST_255_GROUP_ORDER
 
     @property
     def rand(self) -> Ristretto255Scalar:
@@ -369,7 +369,7 @@ class Ristretto255ScalarGroup(PreGroup):
             Random group element
         """
 
-        value = randbelow(group_order)
+        value = randbelow(_RST_255_GROUP_ORDER)
         res = ctypes.create_string_buffer(value.to_bytes(32, "little"), 32)
         return Ristretto255Scalar(self, res)
 

@@ -1,4 +1,5 @@
 """
+Integers modulo prime q
 """
 
 from __future__ import annotations

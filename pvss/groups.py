@@ -68,6 +68,10 @@ class PreGroup(ABC):
 
 
 class PreGroupValue(ABC):
+    """
+    Abstract pre-group value, e.g. some private key.
+    """
+
     group: PreGroup
 
     @abstractmethod
@@ -204,7 +208,7 @@ class ImageGroup(ABC):
 
 class ImageValue(ABC):
     """
-    Abstract image value, e.g. a curve point or a quadratic residue modulo p
+    Abstract image value, e.g. a curve point or a quadratic residue modulo p.
     """
 
     group: ImageGroup

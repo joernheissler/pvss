@@ -1,3 +1,7 @@
+"""
+Implementation of PVSS algorithms.
+"""
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -73,7 +77,14 @@ _T1 = TypeVar("_T1", bound="Asn1Object")
 
 
 class Asn1Object(ABC):
+    """
+    Abstract base class for all other PVSS ASN.1 objects.
+    """
+
+    # Reference to PVSS object that holds all ASN.1 objects.
     pvss: Pvss
+
+    # ASN.1 type. Child classes set a more concrete type.
     asn1: Asn1Value
 
     def __init__(self, pvss: Pvss, asn1: Asn1Value) -> None:
@@ -109,7 +120,14 @@ _T2 = TypeVar("_T2", bound="SystemParameters")
 
 
 class SystemParameters(Asn1Object):
+    """
+    Base class for system parameter object.
+    Holds the group descriptions and generators.
+    """
+
+    # Set by child class to denote one of the registered group algorithms.
     ALGO: str
+
     asn1: _asn1.SystemParameters
 
     def __new__(cls, pvss: Pvss, asn1: _asn1.SystemParameters) -> SystemParameters:
@@ -163,6 +181,10 @@ class SystemParameters(Asn1Object):
 
 
 class PrivateKey(Asn1Object):
+    """
+    Private user or receiver key.
+    """
+
     asn1: _asn1.PrivateKey
 
     def _validate(self) -> None:
@@ -189,6 +211,10 @@ class PrivateKey(Asn1Object):
 
 
 class PublicKey(Asn1Object):
+    """
+    Public user or receiver key.
+    """
+
     asn1: _asn1.PublicKey
 
     def _validate(self) -> None:
@@ -217,6 +243,11 @@ class PublicKey(Asn1Object):
 
 
 class Secret(Asn1Object):
+    """
+    Secret that is protected through PVSS.
+    The DER encoding of this object can be used to protect some actual payload.
+    """
+
     asn1: _asn1.Secret
 
     @classmethod
@@ -321,6 +352,10 @@ class Share(Asn1Object):
 
 
 class SharedSecret(Asn1Object):
+    """
+    All shares of a shared secret, along with Zero Knowledge proof.
+    """
+
     asn1: _asn1.SharedSecret
 
     @classmethod
@@ -478,6 +513,10 @@ class SharedSecret(Asn1Object):
 
 
 class ReencryptedShare(Asn1Object):
+    """
+    Secret Share after reencryption.
+    """
+
     asn1: _asn1.ReencryptedShare
 
     @classmethod
@@ -665,6 +704,10 @@ class Challenge(Asn1Object):
 
 
 class SharesChallenge(Challenge):
+    """
+    Zero-Knowledge challenge for "shared secret" message.
+    """
+
     asn1: _asn1.SharesChallenge
 
     @classmethod
@@ -703,6 +746,10 @@ class SharesChallenge(Challenge):
 
 
 class ReencryptedChallenge(Challenge):
+    """
+    Zero-Knowledge challenge for "reencrypted share" message.
+    """
+
     asn1: _asn1.ReencryptedChallenge
 
     @classmethod
@@ -990,7 +1037,7 @@ class Pvss:
 
 class Poly(Sequence[PreGroupValue]):
     """
-    Polynomial
+    Polynomial with random coefficients.
     """
 
     _coeffs: List[PreGroupValue]

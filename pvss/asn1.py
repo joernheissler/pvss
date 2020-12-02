@@ -1,3 +1,7 @@
+"""
+ASN.1 data types for PVSS objects
+"""
+
 from __future__ import annotations
 
 from typing import Any as _Any
