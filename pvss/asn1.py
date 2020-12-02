@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import Any as _Any
-from typing import ByteString, Dict, Type, TypeVar, cast
+from typing import ByteString, Dict, Type, TypeVar
 
 from asn1crypto.core import (
     Any,

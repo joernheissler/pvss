@@ -7,13 +7,13 @@ from __future__ import annotations
 import logging
 from contextlib import suppress
 from io import BufferedIOBase
-from os import getcwd, umask
+from os import umask
 from pathlib import Path
 from random import randrange
 
 import click
 
-from .pvss import Pvss, PublicKey
+from .pvss import Pvss
 
 
 def pvss_from_datadir(datadir: Path) -> Pvss:

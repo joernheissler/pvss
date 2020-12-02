@@ -11,7 +11,6 @@ from typing import (
     Any,
     ByteString,
     Dict,
-    Generator,
     Iterable,
     Iterator,
     List,

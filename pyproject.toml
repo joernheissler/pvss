@@ -85,3 +85,7 @@ commands =
 
     [tool.coverage.html]
     directory = "coverage_html_report"
+
+
+[tool.pylint."messages control"]
+disable = "unsubscriptable-object"

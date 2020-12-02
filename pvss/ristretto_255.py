@@ -13,7 +13,7 @@ from os import environ
 from secrets import randbelow
 from typing import TYPE_CHECKING, ByteString, Optional, Union
 
-from asn1crypto.core import Asn1Value, Integer, OctetString
+from asn1crypto.core import Asn1Value, OctetString
 
 from . import asn1 as _asn1
 from .groups import ImageGroup, ImageValue, PgvOrInt, PreGroup, PreGroupValue

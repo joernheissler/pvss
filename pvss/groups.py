@@ -5,7 +5,6 @@ Implementation of pre-image and image groups for the group homomorphisms
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from fractions import Fraction
 from typing import Optional, Union
 
