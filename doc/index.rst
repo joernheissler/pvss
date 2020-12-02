@@ -51,6 +51,7 @@ the encrypted share is public and it can be verified that the users followed the
    glossary
    contributing
    changelog
+   license
 
 
 Indices and tables
