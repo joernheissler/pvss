@@ -396,6 +396,10 @@ class SharedSecret(Asn1Object):
     def challenge(self) -> int:
         return int.from_bytes(self.digest, "big")
 
+    @property
+    def qualified_size(self) -> int:
+        return len(self.coefficients)
+
     def _validate(self) -> None:
         X = [
             prod(c ** (i ** j) for j, c in enumerate(self.coefficients))

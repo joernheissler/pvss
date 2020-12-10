@@ -90,6 +90,8 @@ def test_pvss() -> None:
     with pytest.raises(Exception, match="Shares already set"):
         pvss.set_shares(shares)
 
+    assert pvss.shares.qualified_size == 2
+
     assert secret0[0] == 48
     assert shares[0] == 48
 
