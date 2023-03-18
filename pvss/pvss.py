@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from fractions import Fraction
-from functools import reduce
+from functools import cached_property, reduce
 from hashlib import sha256
 from itertools import zip_longest
 from operator import mul
@@ -33,11 +33,6 @@ from asn1crypto.core import Asn1Value, Integer, OctetString, SequenceOf
 
 from . import asn1 as _asn1
 from .groups import ImageGroup, ImageValue, PreGroup, PreGroupValue
-
-if TYPE_CHECKING:  # pragma: no cover
-    lazy = property
-else:
-    from lazy import lazy
 
 
 def zip_strict(*args: Iterable[Any]) -> Iterator[Any]:
@@ -155,11 +150,11 @@ class SystemParameters(Asn1Object):
         """
         """
 
-    @lazy
+    @cached_property
     def g(self) -> Tuple[ImageValue, ImageValue]:
         return self._make_gen("g_0"), self._make_gen("g_1")
 
-    @lazy
+    @cached_property
     def G(self) -> Tuple[ImageValue, ImageValue]:
         return self._make_gen("G_0"), self._make_gen("G_1")
 
@@ -200,7 +195,7 @@ class PrivateKey(Asn1Object):
     def create_random(cls, pvss: Pvss) -> PrivateKey:
         return cls.create(pvss, pvss.params.pre_group.rand_nonzero)
 
-    @lazy
+    @cached_property
     def priv(self) -> PreGroupValue:
         return self.pvss.params.pre_group(self.asn1["priv"])
 
@@ -230,11 +225,11 @@ class PublicKey(Asn1Object):
             pvss, _asn1.PublicKey({"name": str(name), "pub0": pub[0].asn1, "pub1": pub[1].asn1})
         )
 
-    @lazy
+    @cached_property
     def name(self) -> str:
         return str(self.asn1["name"])
 
-    @lazy
+    @cached_property
     def pub(self) -> Tuple[ImageValue, ImageValue]:
         return (
             self.params.img_group(self.asn1["pub0"]),
@@ -254,7 +249,7 @@ class Secret(Asn1Object):
     def create(cls, pvss: Pvss, secret: ImageValue) -> Secret:
         return cls(pvss, _asn1.Secret({"secret": secret.asn1}))
 
-    @lazy
+    @cached_property
     def secret(self) -> ImageValue:
         return self.params.img_group(self.asn1["secret"])
 
@@ -321,22 +316,22 @@ class Share(Asn1Object):
             ),
         )
 
-    @lazy
+    @cached_property
     def pub_name(self) -> str:
         return cast(str, self.asn1["pub"].native)
 
-    @lazy
+    @cached_property
     def pub(self) -> PublicKey:
         """
         """
 
         return self.pvss.user_public_keys[self.pub_name]
 
-    @lazy
+    @cached_property
     def share(self) -> ImageValue:
         return self.params.img_group(self.asn1["share"])
 
-    @lazy
+    @cached_property
     def resp(self) -> Tuple[PreGroupValue, PreGroupValue]:
         return (
             self.params.pre_group(self.asn1["response_f0"]),
@@ -377,22 +372,22 @@ class SharedSecret(Asn1Object):
             ),
         )
 
-    @lazy
+    @cached_property
     def shares(self) -> List[Share]:
         return [Share(self.pvss, share) for share in cast(SequenceOf, self.asn1["shares"])]
 
-    @lazy
+    @cached_property
     def coefficients(self) -> List[ImageValue]:
         return [
             self.params.img_group(coeff)
             for coeff in cast(SequenceOf, self.asn1["coefficients"])
         ]
 
-    @lazy
+    @cached_property
     def digest(self) -> bytes:
         return bytes(cast(OctetString, self.asn1["challenge"]))
 
-    @lazy
+    @cached_property
     def challenge(self) -> int:
         return int.from_bytes(self.digest, "big")
 
@@ -552,41 +547,41 @@ class ReencryptedShare(Asn1Object):
             ),
         )
 
-    @lazy
+    @cached_property
     def idx(self) -> int:
         return int(cast(Integer, self.asn1["idx"]))
 
-    @lazy
+    @cached_property
     def elg_a(self) -> ImageValue:
         return self.params.img_group(self.asn1["elg_a"])
 
-    @lazy
+    @cached_property
     def elg_b(self) -> ImageValue:
         return self.params.img_group(self.asn1["elg_b"])
 
-    @lazy
+    @cached_property
     def response_priv(self) -> PreGroupValue:
         return self.params.pre_group(self.asn1["response_priv"])
 
-    @lazy
+    @cached_property
     def response_v(self) -> Tuple[PreGroupValue, PreGroupValue]:
         return (
             self.params.pre_group(self.asn1["response_v0"]),
             self.params.pre_group(self.asn1["response_v1"]),
         )
 
-    @lazy
+    @cached_property
     def response_w(self) -> Tuple[PreGroupValue, PreGroupValue]:
         return (
             self.params.pre_group(self.asn1["response_w0"]),
             self.params.pre_group(self.asn1["response_w1"]),
         )
 
-    @lazy
+    @cached_property
     def digest(self) -> bytes:
         return bytes(cast(OctetString, self.asn1["challenge"]))
 
-    @lazy
+    @cached_property
     def challenge(self) -> int:
         return int.from_bytes(self.digest, "big")
 
@@ -692,14 +687,14 @@ class Challenge(Asn1Object):
         """
         # XXX is still loaded in constructor. What to do?!
 
-    @lazy
+    @cached_property
     def digest(self) -> bytes:
         """
         Compute the sha256 digest over the DER encoding
         """
         return sha256(self.der).digest()
 
-    @lazy
+    @cached_property
     def challenge(self) -> int:
         """
         Convert the digest into an integer so it can be used in the algorithms

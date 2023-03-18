@@ -7,6 +7,7 @@ from __future__ import annotations
 import hmac
 from dataclasses import dataclass
 from fractions import Fraction
+from functools import cached_property
 from os import environ
 from typing import TYPE_CHECKING, ByteString, Optional, Union, cast
 
@@ -28,11 +29,6 @@ from .asn1 import ImgGroupValue
 from .groups import ImageGroup, ImageValue, PgvOrInt
 from .pvss import Pvss, SystemParameters
 from .zq import ZqGroup, ZqValue
-
-if TYPE_CHECKING:  # pragma: no cover
-    lazy = property
-else:
-    from lazy import lazy
 
 
 def create_qr_params(pvss: Pvss, params: Union[int, str, ByteString]) -> bytes:
@@ -72,11 +68,11 @@ class QrParameters(SystemParameters):
 
     ALGO = "qr_mod_p"
 
-    @lazy
+    @cached_property
     def pre_group(self) -> ZqGroup:
         return ZqGroup(mpz(self.img_group.len))
 
-    @lazy
+    @cached_property
     def img_group(self) -> QrGroup:
         """
         Create image group singleton
@@ -148,7 +144,7 @@ class QrGroup(ImageGroup):
 
         return QrValue(self, value)
 
-    @lazy
+    @cached_property
     def len(self) -> int:
         return int(self.p // 2)
 

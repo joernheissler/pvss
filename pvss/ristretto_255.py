@@ -9,6 +9,7 @@ import ctypes.util
 import hmac
 from dataclasses import dataclass
 from fractions import Fraction
+from functools import cached_property
 from os import environ
 from secrets import randbelow
 from typing import TYPE_CHECKING, ByteString, Optional, Union
@@ -18,12 +19,6 @@ from asn1crypto.core import Asn1Value, OctetString
 from . import asn1 as _asn1
 from .groups import ImageGroup, ImageValue, PgvOrInt, PreGroup, PreGroupValue
 from .pvss import Pvss, SystemParameters
-
-if TYPE_CHECKING:  # pragma: no cover
-    lazy = property
-else:
-    from lazy import lazy
-
 
 # Order of the Ristretto255 group.
 _RST_255_GROUP_ORDER = 2 ** 252 + 27742317777372353535851937790883648493
@@ -48,11 +43,11 @@ def create_ristretto_255_parameters(pvss: Pvss) -> bytes:
 class Ristretto255Parameters(SystemParameters):
     ALGO = "ristretto_255"
 
-    @lazy
+    @cached_property
     def pre_group(self) -> Ristretto255ScalarGroup:
         return Ristretto255ScalarGroup()
 
-    @lazy
+    @cached_property
     def img_group(self) -> Ristretto255Group:
         return Ristretto255Group(self.pre_group)
 
@@ -222,7 +217,7 @@ class Ristretto255Point(ImageValue):
     group: Ristretto255Group
     _buf: ctypes.Array[ctypes.c_char]
 
-    @lazy
+    @cached_property
     def asn1(self) -> _asn1.ImgGroupValue:
         return _asn1.ImgGroupValue({"ECPoint": OctetString(bytes(self))})
 
@@ -443,7 +438,7 @@ class Ristretto255Scalar(PreGroupValue):
         _Lib.scalar_mul(res, self._buf, buf)
         return Ristretto255Scalar(self.group, res)
 
-    @lazy
+    @cached_property
     def inv(self) -> Ristretto255Scalar:
         res = ctypes.create_string_buffer(32)
         if _Lib.scalar_invert(res, self._buf) < 0:
@@ -472,7 +467,7 @@ class Ristretto255Scalar(PreGroupValue):
     def __bytes__(self) -> bytes:
         return bytes(self._buf)
 
-    @lazy
+    @cached_property
     def asn1(self) -> _asn1.PreGroupValue:
         return _asn1.PreGroupValue(int(self))
 

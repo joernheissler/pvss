@@ -5,6 +5,7 @@ Integers modulo prime q
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import cached_property
 from os import environ
 from secrets import randbelow
 from typing import TYPE_CHECKING, Any, Union, cast
@@ -20,11 +21,6 @@ except ImportError:  # pragma: no cover
 
 from . import asn1
 from .groups import PgvOrInt, PreGroup, PreGroupValue
-
-if TYPE_CHECKING:  # pragma: no cover
-    lazy = property
-else:
-    from lazy import lazy
 
 
 @dataclass(frozen=True)
@@ -205,7 +201,7 @@ class ZqValue(PreGroupValue):
 
         return f"{self.group}({self._value})"
 
-    @lazy
+    @cached_property
     def asn1(self) -> asn1.PreGroupValue:
         """
         Convert value to an ASN.1 type so it can be serialized to DER.

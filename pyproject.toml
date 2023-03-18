@@ -32,7 +32,6 @@ classifiers = [
     python = "^3.7"
     click = "^7.0"
     asn1crypto = "^1.4.0"
-    lazy = "^1.4"
     sphinx = { version = "^2.4", optional = true }
     sphinx-rtd-theme = { version = "^0.4", optional = true }
 
