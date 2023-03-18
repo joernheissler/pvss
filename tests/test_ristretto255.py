@@ -5,6 +5,7 @@ from typing import cast
 
 import pytest
 from asn1crypto.core import UTF8String
+
 from pvss.asn1 import ImgGroupValue, PreGroupValue
 from pvss.pvss import Pvss
 from pvss.ristretto_255 import (

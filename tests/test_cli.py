@@ -2,6 +2,7 @@ from click.testing import CliRunner
 
 from pvss.cli import cli
 
+
 def test_cli() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
