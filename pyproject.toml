@@ -55,22 +55,6 @@ classifiers = [
 [tool.black]
 line-length = 96
 
-[tool.tox]
-legacy_tox_ini = """
-[tox]
-skipsdist = True
-envlist = py37, py38, py39
-
-[testenv]
-skip_install = true
-whitelist_externals = poetry
-commands =
-    poetry install -vvv
-    poetry run mypy --strict --no-strict-equality pvss tests
-    poetry run coverage erase
-    poetry run coverage run -m pytest -v --strict tests
-    poetry run coverage html
-"""
 
 [tool.coverage]
     [tool.coverage.report]
