@@ -1,6 +1,10 @@
 [build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+##############
+### Poetry ###
+##############
 
 [tool.poetry]
 name = "pvss"
@@ -27,48 +31,66 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Mathematics",
 ]
 
+[tool.poetry.dependencies]
+python = "^3.9"
+click = "^8.1"
+asn1crypto = "^1.5"
+sphinx = { version = "^6.1", optional = true }
+sphinx-rtd-theme = { version = "^1.2", optional = true }
 
-    [tool.poetry.dependencies]
-    python = "^3.9"
-    click = "^7.0"
-    asn1crypto = "^1.4.0"
-    sphinx = { version = "^2.4", optional = true }
-    sphinx-rtd-theme = { version = "^0.4", optional = true }
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2"
+tox = "^4.4"
+gmpy2 = "^2.1"
+coverage = "^7.2"
+mypy = "^1.1"
+black = "^23.1.0"
+isort = "^5.12.0"
 
-    [tool.poetry.dev-dependencies]
-    pytest = "^5.3.2"
-    cryptography = "^2.8"
-    tox = "^3.14.3"
-    gmpy2 = "^2.0.8"
-    coverage = "^5.0.1"
+[tool.poetry.scripts]
+pvss = 'pvss.cli:cli'
 
-    [tool.poetry.scripts]
-    pvss = 'pvss.cli:cli'
+[tool.poetry.extras]
+docs = [
+    "sphinx",
+    "sphinx-rtd-theme",
+]
 
-    [tool.poetry.extras]
-    docs = [
-        "sphinx",
-        "sphinx-rtd-theme",
-    ]
+#############
+### Black ###
+#############
 
 [tool.black]
 line-length = 96
 
+#############
+### Isort ###
+#############
+
+[tool.isort]
+profile = "black"
+
+################
+### Coverage ###
+################
 
 [tool.coverage]
-    [tool.coverage.report]
-    show_missing = true
+[tool.coverage.report]
+show_missing = true
 
-    [tool.coverage.run]
-    branch = true
-    source = [
-        "tests",
-        "pvss",
-    ]
+[tool.coverage.run]
+branch = true
+source = [
+    "tests",
+    "pvss",
+]
 
-    [tool.coverage.html]
-    directory = "coverage_html_report"
+[tool.coverage.html]
+directory = "coverage_html_report"
 
+##############
+### Pylint ###
+##############
 
 [tool.pylint."messages control"]
 disable = "unsubscriptable-object"

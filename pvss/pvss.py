@@ -122,7 +122,7 @@ class SystemParameters(Asn1Object):
             impl = ristretto_255.Ristretto255Parameters
         else:
             raise ValueError(f"Algorithm {algo} not implemented")
-        return cast(SystemParameters, super().__new__(impl))
+        return super().__new__(impl)
 
     @classmethod
     def create(cls: type[_T2], pvss: Pvss, params: Any) -> _T2:
