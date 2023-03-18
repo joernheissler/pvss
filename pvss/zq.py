@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from functools import cached_property
 from os import environ
 from secrets import randbelow
-from typing import TYPE_CHECKING, Any, Union, cast
+from typing import Any, Union, cast
 
 from asn1crypto.core import Asn1Value
 

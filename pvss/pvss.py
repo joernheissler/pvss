@@ -5,29 +5,13 @@ Implementation of PVSS algorithms.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Iterable, Iterator, Sequence
 from fractions import Fraction
 from functools import cached_property, reduce
 from hashlib import sha256
 from itertools import zip_longest
 from operator import mul
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    ByteString,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Sequence,
-    Tuple,
-    Type,
-    TypeVar,
-    Union,
-    cast,
-    get_type_hints,
-    overload,
-)
+from typing import Any, Optional, TypeVar, Union, cast, get_type_hints, overload
 
 from asn1crypto.core import Asn1Value, Integer, OctetString, SequenceOf
 
@@ -88,7 +72,7 @@ class Asn1Object(ABC):
         self._validate()
 
     @classmethod
-    def from_der(cls: Type[_T1], pvss: Pvss, data: ByteString) -> _T1:
+    def from_der(cls: type[_T1], pvss: Pvss, data: bytes) -> _T1:
         return cls(pvss, get_type_hints(cls)["asn1"].load(data))
 
     @property
@@ -127,7 +111,7 @@ class SystemParameters(Asn1Object):
 
     def __new__(cls, pvss: Pvss, asn1: _asn1.SystemParameters) -> SystemParameters:
         algo = asn1["algorithm"].native
-        impl: Type[SystemParameters]
+        impl: type[SystemParameters]
         if algo == "qr_mod_p":
             from . import qr
 
@@ -141,7 +125,7 @@ class SystemParameters(Asn1Object):
         return cast(SystemParameters, super().__new__(impl))
 
     @classmethod
-    def create(cls: Type[_T2], pvss: Pvss, params: Any) -> _T2:
+    def create(cls: type[_T2], pvss: Pvss, params: Any) -> _T2:
         return cls(pvss, _asn1.SystemParameters({"algorithm": cls.ALGO, "parameters": params}))
 
     @property
@@ -151,11 +135,11 @@ class SystemParameters(Asn1Object):
         """
 
     @cached_property
-    def g(self) -> Tuple[ImageValue, ImageValue]:
+    def g(self) -> tuple[ImageValue, ImageValue]:
         return self._make_gen("g_0"), self._make_gen("g_1")
 
     @cached_property
-    def G(self) -> Tuple[ImageValue, ImageValue]:
+    def G(self) -> tuple[ImageValue, ImageValue]:
         return self._make_gen("G_0"), self._make_gen("G_1")
 
     def _validate(self) -> None:
@@ -220,7 +204,7 @@ class PublicKey(Asn1Object):
             raise ValueError()
 
     @classmethod
-    def create(cls, pvss: Pvss, name: str, pub: Tuple[ImageValue, ImageValue]) -> PublicKey:
+    def create(cls, pvss: Pvss, name: str, pub: tuple[ImageValue, ImageValue]) -> PublicKey:
         return cls(
             pvss, _asn1.PublicKey({"name": str(name), "pub0": pub[0].asn1, "pub1": pub[1].asn1})
         )
@@ -230,7 +214,7 @@ class PublicKey(Asn1Object):
         return str(self.asn1["name"])
 
     @cached_property
-    def pub(self) -> Tuple[ImageValue, ImageValue]:
+    def pub(self) -> tuple[ImageValue, ImageValue]:
         return (
             self.params.img_group(self.asn1["pub0"]),
             self.params.img_group(self.asn1["pub1"]),
@@ -302,7 +286,7 @@ class Share(Asn1Object):
         pvss: Pvss,
         pub_name: str,
         share: ImageValue,
-        resp: Tuple[PreGroupValue, PreGroupValue],
+        resp: tuple[PreGroupValue, PreGroupValue],
     ) -> Share:
         return cls(
             pvss,
@@ -332,7 +316,7 @@ class Share(Asn1Object):
         return self.params.img_group(self.asn1["share"])
 
     @cached_property
-    def resp(self) -> Tuple[PreGroupValue, PreGroupValue]:
+    def resp(self) -> tuple[PreGroupValue, PreGroupValue]:
         return (
             self.params.pre_group(self.asn1["response_f0"]),
             self.params.pre_group(self.asn1["response_f1"]),
@@ -359,7 +343,7 @@ class SharedSecret(Asn1Object):
         pvss: Pvss,
         shares: Iterable[Share],
         coeffs: Iterable[ImageValue],
-        challenge: ByteString,
+        challenge: bytes,
     ) -> SharedSecret:
         return cls(
             pvss,
@@ -373,11 +357,11 @@ class SharedSecret(Asn1Object):
         )
 
     @cached_property
-    def shares(self) -> List[Share]:
+    def shares(self) -> list[Share]:
         return [Share(self.pvss, share) for share in cast(SequenceOf, self.asn1["shares"])]
 
     @cached_property
-    def coefficients(self) -> List[ImageValue]:
+    def coefficients(self) -> list[ImageValue]:
         return [
             self.params.img_group(coeff)
             for coeff in cast(SequenceOf, self.asn1["coefficients"])
@@ -429,7 +413,7 @@ class SharedSecret(Asn1Object):
     @classmethod
     def create_shared_secret(
         cls, pvss: Pvss, qualified_size: int
-    ) -> Tuple[Secret, SharedSecret]:
+    ) -> tuple[Secret, SharedSecret]:
         """
         Create a secret, split it and compute the encrypted shares.
 
@@ -526,9 +510,9 @@ class ReencryptedShare(Asn1Object):
         elg_a: ImageValue,
         elg_b: ImageValue,
         response_priv: PreGroupValue,
-        response_v: Tuple[PreGroupValue, PreGroupValue],
-        response_w: Tuple[PreGroupValue, PreGroupValue],
-        challenge: ByteString,
+        response_v: tuple[PreGroupValue, PreGroupValue],
+        response_w: tuple[PreGroupValue, PreGroupValue],
+        challenge: bytes,
     ) -> ReencryptedShare:
         return cls(
             pvss,
@@ -564,14 +548,14 @@ class ReencryptedShare(Asn1Object):
         return self.params.pre_group(self.asn1["response_priv"])
 
     @cached_property
-    def response_v(self) -> Tuple[PreGroupValue, PreGroupValue]:
+    def response_v(self) -> tuple[PreGroupValue, PreGroupValue]:
         return (
             self.params.pre_group(self.asn1["response_v0"]),
             self.params.pre_group(self.asn1["response_v1"]),
         )
 
     @cached_property
-    def response_w(self) -> Tuple[PreGroupValue, PreGroupValue]:
+    def response_w(self) -> tuple[PreGroupValue, PreGroupValue]:
         return (
             self.params.pre_group(self.asn1["response_w0"]),
             self.params.pre_group(self.asn1["response_w1"]),
@@ -717,7 +701,7 @@ class SharesChallenge(Challenge):
         coeffs: Iterable[ImageValue],
         commitments: Iterable[ImageValue],
         shares: Iterable[ImageValue],
-        randoms: Iterable[Tuple[ImageValue, ImageValue]],
+        randoms: Iterable[tuple[ImageValue, ImageValue]],
     ) -> SharesChallenge:
         """
         """
@@ -785,9 +769,9 @@ class Pvss:
     """
 
     _params: SystemParameters
-    _user_public_keys: Dict[str, PublicKey]
+    _user_public_keys: dict[str, PublicKey]
     _shares: SharedSecret
-    _reencrypted_shares: List[ReencryptedShare]
+    _reencrypted_shares: list[ReencryptedShare]
     _receiver_public_key: PublicKey
 
     def __init__(self) -> None:
@@ -809,7 +793,7 @@ class Pvss:
 
         return self._params
 
-    def set_params(self, data: ByteString) -> SystemParameters:
+    def set_params(self, data: bytes) -> SystemParameters:
         """
         Set system parameters.
 
@@ -830,7 +814,7 @@ class Pvss:
         return params
 
     @property
-    def user_public_keys(self) -> Dict[str, PublicKey]:
+    def user_public_keys(self) -> dict[str, PublicKey]:
         """
         Retrieve all user public keys, as mapping from username to PublicKey.
 
@@ -840,7 +824,7 @@ class Pvss:
 
         return dict(self._user_public_keys)
 
-    def add_user_public_key(self, data: ByteString) -> PublicKey:
+    def add_user_public_key(self, data: bytes) -> PublicKey:
         """
         Add a user public key to the internal state.
 
@@ -876,7 +860,7 @@ class Pvss:
 
         return self._shares
 
-    def set_shares(self, data: ByteString) -> SharedSecret:
+    def set_shares(self, data: bytes) -> SharedSecret:
         """
         Set the shares of the secret.
 
@@ -897,7 +881,7 @@ class Pvss:
         return shares
 
     @property
-    def reencrypted_shares(self) -> List[ReencryptedShare]:
+    def reencrypted_shares(self) -> list[ReencryptedShare]:
         """
         Retrieve the list of reencrypted shares.
 
@@ -907,7 +891,7 @@ class Pvss:
 
         return self._reencrypted_shares
 
-    def add_reencrypted_share(self, data: ByteString) -> ReencryptedShare:
+    def add_reencrypted_share(self, data: bytes) -> ReencryptedShare:
         """
         Add a re-encrypted share to the internal state.
 
@@ -937,7 +921,7 @@ class Pvss:
 
         return self._receiver_public_key
 
-    def set_receiver_public_key(self, data: ByteString) -> PublicKey:
+    def set_receiver_public_key(self, data: bytes) -> PublicKey:
         """
         Add the receiver's public key to the internal state.
 
@@ -957,7 +941,7 @@ class Pvss:
         self._receiver_public_key = pub
         return pub
 
-    def create_user_keypair(self, name: str) -> Tuple[bytes, bytes]:
+    def create_user_keypair(self, name: str) -> tuple[bytes, bytes]:
         """
         Create a random key pair for a user.
 
@@ -972,7 +956,7 @@ class Pvss:
         self.add_user_public_key(pub)
         return priv.der, pub
 
-    def create_receiver_keypair(self, name: str) -> Tuple[bytes, bytes]:
+    def create_receiver_keypair(self, name: str) -> tuple[bytes, bytes]:
         """
         Create a random key pair for the receiver.
 
@@ -987,7 +971,7 @@ class Pvss:
         self.set_receiver_public_key(pub)
         return priv.der, pub
 
-    def share_secret(self, qualified_size: int) -> Tuple[bytes, bytes]:
+    def share_secret(self, qualified_size: int) -> tuple[bytes, bytes]:
         """
         Create a secret, split it and compute the encrypted shares.
 
@@ -1002,7 +986,7 @@ class Pvss:
         self.set_shares(shares.der)
         return secret.der, shares.der
 
-    def reencrypt_share(self, der_private_key: ByteString) -> bytes:
+    def reencrypt_share(self, der_private_key: bytes) -> bytes:
         """
         Decrypt a share of the encrypted secret with the private_key and
         re-encrypt it with another public key
@@ -1019,7 +1003,7 @@ class Pvss:
         self.add_reencrypted_share(share)
         return share
 
-    def reconstruct_secret(self, der_private_key: ByteString) -> bytes:
+    def reconstruct_secret(self, der_private_key: bytes) -> bytes:
         """
         Decrypt the re-encrypted shares with the private key and reconstruct the secret
 
@@ -1039,7 +1023,7 @@ class Poly(Sequence[PreGroupValue]):
     Polynomial with random coefficients.
     """
 
-    _coeffs: List[PreGroupValue]
+    _coeffs: list[PreGroupValue]
     _zero: PreGroupValue
 
     def __init__(self, coeffs: Iterable[PreGroupValue], zero: PreGroupValue) -> None:

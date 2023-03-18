@@ -1,6 +1,6 @@
 from __future__ import annotations
-from typing import Union, Any
 
+from typing import Any, Union
 
 class mpz(object):
     def __init__(self, x: _mpz) -> None:

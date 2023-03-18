@@ -5,7 +5,7 @@ ASN.1 data types for PVSS objects
 from __future__ import annotations
 
 from typing import Any as _Any
-from typing import ByteString, Dict, Type, TypeVar
+from typing import TypeVar
 
 from asn1crypto.core import (
     Any,
@@ -26,9 +26,9 @@ _T = TypeVar("_T", bound="VerifiedLoader")
 class VerifiedLoader(Asn1Value):
     @classmethod
     def load(
-        cls: Type[_T], encoded_data: ByteString, strict: bool = False, **kwargs: Dict[str, _Any]
+        cls: type[_T], encoded_data: bytes, strict: bool = False, **kwargs: dict[str, _Any]
     ) -> _T:
-        self = super().load(encoded_data, strict=True, **kwargs)
+        self = super().load(bytes(encoded_data), strict=True, **kwargs)
 
         if self.dump(True) != encoded_data:
             raise ValueError("Does not encode back to original")

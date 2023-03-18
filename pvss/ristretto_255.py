@@ -12,7 +12,7 @@ from fractions import Fraction
 from functools import cached_property
 from os import environ
 from secrets import randbelow
-from typing import TYPE_CHECKING, ByteString, Optional, Union
+from typing import Optional, Union
 
 from asn1crypto.core import Asn1Value, OctetString
 
@@ -193,7 +193,7 @@ class Ristretto255Group(ImageGroup):
         _Lib.point_random(res)
         return Ristretto255Point(self, res)
 
-    def from_hash(self, value: ByteString) -> Ristretto255Point:
+    def from_hash(self, value: bytes) -> Ristretto255Point:
         """
         Generate a point from from up to 64 bytes. Those would usually come out of a hash function.
         """

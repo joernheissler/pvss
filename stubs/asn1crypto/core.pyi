@@ -1,6 +1,8 @@
 from __future__ import annotations
-from typing import ByteString, Union, Dict, Any as _Any, Optional, TypeVar, Type, Iterator
 
+from collections.abc import Iterator
+from typing import Any as _Any
+from typing import Optional, TypeVar, Union
 
 ASN1_VALUE = TypeVar("ASN1_VALUE", bound="Asn1Value")
 
@@ -13,7 +15,7 @@ class Asn1Value:
         ...
 
     @classmethod
-    def load(cls: Type[ASN1_VALUE], encoded_data: ByteString, strict: bool = False, **kwargs: Dict[str, _Any]) -> ASN1_VALUE:
+    def load(cls: type[ASN1_VALUE], encoded_data: bytes, strict: bool = False, **kwargs: dict[str, _Any]) -> ASN1_VALUE:
         ...
 
     @property

@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from fractions import Fraction
 from functools import cached_property
 from os import environ
-from typing import TYPE_CHECKING, ByteString, Optional, Union, cast
+from typing import Optional, Union, cast
 
 from asn1crypto.algos import DHParameters
 from asn1crypto.core import Asn1Value, Integer
@@ -31,11 +31,11 @@ from .pvss import Pvss, SystemParameters
 from .zq import ZqGroup, ZqValue
 
 
-def create_qr_params(pvss: Pvss, params: Union[int, str, ByteString]) -> bytes:
+def create_qr_params(pvss: Pvss, params: Union[int, str, bytes]) -> bytes:
     """
     Create and set QR parameters.
 
-    If params is str or a ByteString, assume it's a diffie-hellman parameter file
+    If params is str or a bytes, assume it's a diffie-hellman parameter file
     such as created by "openssl dhparam 4096", either DER or PEM encoded.
 
     Args:
