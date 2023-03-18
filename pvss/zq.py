@@ -5,6 +5,7 @@ Integers modulo prime q
 from __future__ import annotations
 
 from dataclasses import dataclass
+from fractions import Fraction
 from functools import cached_property
 from os import environ
 from secrets import randbelow
@@ -45,7 +46,7 @@ class ZqGroup(PreGroup):
         if not is_prime(self.q * 2 + 1):
             raise ValueError("2q + 1 not prime")
 
-    def __call__(self, value: Union[int, Asn1Value]) -> ZqValue:
+    def __call__(self, value: Union[int, Asn1Value, Fraction]) -> ZqValue:
         """
         Convert an integer into a group element
 
@@ -61,6 +62,9 @@ class ZqGroup(PreGroup):
             if not 0 <= mpz_value < self.q:
                 raise ValueError("Not a valid group element")
             return ZqValue(self, mpz_value)
+
+        if isinstance(value, Fraction):
+            return self(value.numerator) * self(value.denominator).inv
 
         raise TypeError(f"Type not supported: {type(value)}")
 

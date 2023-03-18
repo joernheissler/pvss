@@ -19,7 +19,7 @@ class PreGroup(ABC):
     """
 
     @abstractmethod
-    def __call__(self, value: Union[int, Asn1Value]) -> PreGroupValue:
+    def __call__(self, value: Union[int, Asn1Value, Fraction]) -> PreGroupValue:
         """
         Convert an integer into a group element
 
