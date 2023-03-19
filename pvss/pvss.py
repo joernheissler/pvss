@@ -372,8 +372,8 @@ class SharedSecret(Asn1Object):
         return bytes(cast(OctetString, self.asn1["challenge"]))
 
     @cached_property
-    def challenge(self) -> int:
-        return int.from_bytes(self.digest, "big")
+    def challenge(self) -> PreGroupValue:
+        return self.pvss.params.pre_group(int.from_bytes(self.digest, "big"))
 
     @property
     def qualified_size(self) -> int:
@@ -566,8 +566,8 @@ class ReencryptedShare(Asn1Object):
         return bytes(cast(OctetString, self.asn1["challenge"]))
 
     @cached_property
-    def challenge(self) -> int:
-        return int.from_bytes(self.digest, "big")
+    def challenge(self) -> PreGroupValue:
+        return self.pvss.params.pre_group(int.from_bytes(self.digest, "big"))
 
     @property
     def share(self) -> Share:
@@ -679,11 +679,11 @@ class Challenge(Asn1Object):
         return sha256(self.der).digest()
 
     @cached_property
-    def challenge(self) -> int:
+    def challenge(self) -> PreGroupValue:
         """
-        Convert the digest into an integer so it can be used in the algorithms
+        Convert the digest into a pre-group element so it can be used in the algorithms
         """
-        return int.from_bytes(self.digest, "big")
+        return self.pvss.params.pre_group(int.from_bytes(self.digest, "big"))
 
 
 class SharesChallenge(Challenge):
