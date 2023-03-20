@@ -37,6 +37,7 @@ click = "^8.1"
 asn1crypto = "^1.5"
 sphinx = { version = "^6.1", optional = true }
 sphinx-rtd-theme = { version = "^1.2", optional = true }
+gmpy2 = { version = "^2.1", optional = true }
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2"
