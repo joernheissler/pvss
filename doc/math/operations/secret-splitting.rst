@@ -40,7 +40,7 @@ To achieve this, the dealer carries out the following steps:
     | :math:`X'_i =     g_0^{{k_i}_0}     g_1^{{k_i}_1}`
 
 * Compute the challenge for the zero knowledge proof using a cryptographic hash function
-  :math:`c = H(G, g_0, g_1, G_0, G_1, C_j, y_i, Y_i, Y'_i, X_i, X'_i)`
+  :math:`c = H(G_q, g_0, g_1, G_0, G_1, C_j, y_i, Y_i, Y'_i, X_i, X'_i)`
   with :math:`j \in [0,t)` and for all users :math:`i`.
 
   How those values are serialised into an input for the hash function is not important as long
@@ -80,7 +80,7 @@ the following steps are carried out:
   - :math:`X_i' = g_0^{{s_i}_0} g_1^{{s_i}_1} X_i^{-c}`
 
 * Compute the challenge for the zero knowledge proof using a cryptographic hash function
-  :math:`c' = H(G, g_0, g_1, G_0, G_1, C_j, y_i, Y_i, Y'_i, X_i, X'_i)`
+  :math:`c' = H(G_q, g_0, g_1, G_0, G_1, C_j, y_i, Y_i, Y'_i, X_i, X'_i)`
   with :math:`j \in [0,t)` and for all users :math:`i`.
 
 * Verify that :math:`c = c'`

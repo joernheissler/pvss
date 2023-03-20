@@ -7,18 +7,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from fractions import Fraction
 from functools import cached_property
-from os import environ
 from secrets import randbelow
 from typing import Any, Union, cast
 
 from asn1crypto.core import Asn1Value
-
-try:
-    from gmpy2 import invert, is_prime, mpz
-except ImportError:  # pragma: no cover
-    # Work around the fact that gmpy2 is not installed in the readthedocs build image
-    if "READTHEDOCS" not in environ:
-        raise
+from gmpy2 import invert, is_prime, mpz
 
 from . import asn1
 from .groups import PgvOrInt, PreGroup, PreGroupValue

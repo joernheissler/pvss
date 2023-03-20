@@ -10,7 +10,6 @@ import hmac
 from dataclasses import dataclass
 from fractions import Fraction
 from functools import cached_property
-from os import environ
 from secrets import randbelow
 from typing import Optional, Union
 
@@ -65,104 +64,98 @@ class Ristretto255Parameters(SystemParameters):
 
 
 class _Lib:
-    try:
-        lib_name = ctypes.util.find_library("sodium")
-        if not lib_name:  # pragma: no cover
-            raise Exception("libsodium not found")
+    lib_name = ctypes.util.find_library("sodium")
+    if not lib_name:  # pragma: no cover
+        raise Exception("libsodium not found")
 
-        lib = ctypes.cdll.LoadLibrary(lib_name)
-        if lib.sodium_init() < 0:  # pragma: no cover
-            raise Exception("Cannot initialize libsodium")
+    lib = ctypes.cdll.LoadLibrary(lib_name)
+    if lib.sodium_init() < 0:  # pragma: no cover
+        raise Exception("Cannot initialize libsodium")
 
-        # int sodium_memcmp(const void * const b1_, const void * const b2_, size_t len);
-        memcmp = lib.sodium_memcmp
-        memcmp.restype = ctypes.c_int
-        memcmp.argtypes = ctypes.c_char_p, ctypes.c_char_p, ctypes.c_size_t
+    # int sodium_memcmp(const void * const b1_, const void * const b2_, size_t len);
+    memcmp = lib.sodium_memcmp
+    memcmp.restype = ctypes.c_int
+    memcmp.argtypes = ctypes.c_char_p, ctypes.c_char_p, ctypes.c_size_t
 
-        # int sodium_is_zero(const unsigned char *n, const size_t nlen);
-        is_zero = lib.sodium_is_zero
-        is_zero.restype = ctypes.c_int
-        is_zero.argtypes = ctypes.c_char_p, ctypes.c_size_t
+    # int sodium_is_zero(const unsigned char *n, const size_t nlen);
+    is_zero = lib.sodium_is_zero
+    is_zero.restype = ctypes.c_int
+    is_zero.argtypes = ctypes.c_char_p, ctypes.c_size_t
 
-        # int crypto_core_ristretto255_is_valid_point(const unsigned char *p);
-        point_is_valid = lib.crypto_core_ristretto255_is_valid_point
-        point_is_valid.restype = ctypes.c_int
-        point_is_valid.argtypes = (ctypes.c_char_p,)
+    # int crypto_core_ristretto255_is_valid_point(const unsigned char *p);
+    point_is_valid = lib.crypto_core_ristretto255_is_valid_point
+    point_is_valid.restype = ctypes.c_int
+    point_is_valid.argtypes = (ctypes.c_char_p,)
 
-        # void crypto_core_ristretto255_random(unsigned char *p);
-        point_random = lib.crypto_core_ristretto255_random
-        point_random.restype = None
-        point_random.argtypes = (ctypes.c_char_p,)
+    # void crypto_core_ristretto255_random(unsigned char *p);
+    point_random = lib.crypto_core_ristretto255_random
+    point_random.restype = None
+    point_random.argtypes = (ctypes.c_char_p,)
 
-        # int crypto_core_ristretto255_from_hash(unsigned char *p, const unsigned char *r);
-        point_from_hash = lib.crypto_core_ristretto255_from_hash
-        point_from_hash.restype = ctypes.c_int
-        point_from_hash.argtypes = ctypes.c_char_p, ctypes.c_char_p
+    # int crypto_core_ristretto255_from_hash(unsigned char *p, const unsigned char *r);
+    point_from_hash = lib.crypto_core_ristretto255_from_hash
+    point_from_hash.restype = ctypes.c_int
+    point_from_hash.argtypes = ctypes.c_char_p, ctypes.c_char_p
 
-        # int crypto_scalarmult_ristretto255(unsigned char *q, const unsigned char *n, const unsigned char *p);
-        point_mul = lib.crypto_scalarmult_ristretto255
-        point_mul.restype = ctypes.c_int
-        point_mul.argtypes = ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p
+    # int crypto_scalarmult_ristretto255(unsigned char *q, const unsigned char *n, const unsigned char *p);
+    point_mul = lib.crypto_scalarmult_ristretto255
+    point_mul.restype = ctypes.c_int
+    point_mul.argtypes = ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p
 
-        # int crypto_scalarmult_ristretto255_base(unsigned char *q, const unsigned char *n);
-        point_base_mul = lib.crypto_scalarmult_ristretto255_base
-        point_base_mul.restype = ctypes.c_int
-        point_base_mul.argtypes = ctypes.c_char_p, ctypes.c_char_p
+    # int crypto_scalarmult_ristretto255_base(unsigned char *q, const unsigned char *n);
+    point_base_mul = lib.crypto_scalarmult_ristretto255_base
+    point_base_mul.restype = ctypes.c_int
+    point_base_mul.argtypes = ctypes.c_char_p, ctypes.c_char_p
 
-        # int crypto_core_ristretto255_add(unsigned char *r, const unsigned char *p, const unsigned char *q);
-        point_add = lib.crypto_core_ristretto255_add
-        point_add.restype = ctypes.c_int
-        point_add.argtypes = ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p
+    # int crypto_core_ristretto255_add(unsigned char *r, const unsigned char *p, const unsigned char *q);
+    point_add = lib.crypto_core_ristretto255_add
+    point_add.restype = ctypes.c_int
+    point_add.argtypes = ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p
 
-        # int crypto_core_ristretto255_sub(unsigned char *r, const unsigned char *p, const unsigned char *q);
-        point_sub = lib.crypto_core_ristretto255_sub
-        point_sub.restype = ctypes.c_int
-        point_sub.argtypes = ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p
+    # int crypto_core_ristretto255_sub(unsigned char *r, const unsigned char *p, const unsigned char *q);
+    point_sub = lib.crypto_core_ristretto255_sub
+    point_sub.restype = ctypes.c_int
+    point_sub.argtypes = ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p
 
-        # void crypto_core_ristretto255_scalar_random(unsigned char *r);
-        scalar_random = lib.crypto_core_ristretto255_scalar_random
-        scalar_random.restype = None
-        scalar_random.argtypes = (ctypes.c_char_p,)
+    # void crypto_core_ristretto255_scalar_random(unsigned char *r);
+    scalar_random = lib.crypto_core_ristretto255_scalar_random
+    scalar_random.restype = None
+    scalar_random.argtypes = (ctypes.c_char_p,)
 
-        # void crypto_core_ristretto255_scalar_reduce(unsigned char *r, const unsigned char *s);
-        scalar_reduce = lib.crypto_core_ristretto255_scalar_reduce
-        scalar_reduce.restype = None
-        scalar_reduce.argtypes = ctypes.c_char_p, ctypes.c_char_p
+    # void crypto_core_ristretto255_scalar_reduce(unsigned char *r, const unsigned char *s);
+    scalar_reduce = lib.crypto_core_ristretto255_scalar_reduce
+    scalar_reduce.restype = None
+    scalar_reduce.argtypes = ctypes.c_char_p, ctypes.c_char_p
 
-        # int crypto_core_ristretto255_scalar_invert(unsigned char *recip, const unsigned char *s);
-        scalar_invert = lib.crypto_core_ristretto255_scalar_invert
-        scalar_invert.restype = ctypes.c_int
-        scalar_invert.argtypes = ctypes.c_char_p, ctypes.c_char_p
+    # int crypto_core_ristretto255_scalar_invert(unsigned char *recip, const unsigned char *s);
+    scalar_invert = lib.crypto_core_ristretto255_scalar_invert
+    scalar_invert.restype = ctypes.c_int
+    scalar_invert.argtypes = ctypes.c_char_p, ctypes.c_char_p
 
-        # void crypto_core_ristretto255_scalar_negate(unsigned char *neg, const unsigned char *s);
-        scalar_negate = lib.crypto_core_ristretto255_scalar_negate
-        scalar_negate.restype = None
-        scalar_negate.argtypes = ctypes.c_char_p, ctypes.c_char_p
+    # void crypto_core_ristretto255_scalar_negate(unsigned char *neg, const unsigned char *s);
+    scalar_negate = lib.crypto_core_ristretto255_scalar_negate
+    scalar_negate.restype = None
+    scalar_negate.argtypes = ctypes.c_char_p, ctypes.c_char_p
 
-        # void crypto_core_ristretto255_scalar_complement(unsigned char *comp, const unsigned char *s);
-        scalar_complement = lib.crypto_core_ristretto255_scalar_complement
-        scalar_complement.restype = None
-        scalar_complement.argtypes = ctypes.c_char_p, ctypes.c_char_p
+    # void crypto_core_ristretto255_scalar_complement(unsigned char *comp, const unsigned char *s);
+    scalar_complement = lib.crypto_core_ristretto255_scalar_complement
+    scalar_complement.restype = None
+    scalar_complement.argtypes = ctypes.c_char_p, ctypes.c_char_p
 
-        # void crypto_core_ristretto255_scalar_add(unsigned char *z, const unsigned char *x, const unsigned char *y);
-        scalar_add = lib.crypto_core_ristretto255_scalar_add
-        scalar_add.restype = None
-        scalar_add.argtypes = ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p
+    # void crypto_core_ristretto255_scalar_add(unsigned char *z, const unsigned char *x, const unsigned char *y);
+    scalar_add = lib.crypto_core_ristretto255_scalar_add
+    scalar_add.restype = None
+    scalar_add.argtypes = ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p
 
-        # void crypto_core_ristretto255_scalar_sub(unsigned char *z, const unsigned char *x, const unsigned char *y);
-        scalar_sub = lib.crypto_core_ristretto255_scalar_sub
-        scalar_sub.restype = None
-        scalar_sub.argtypes = ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p
+    # void crypto_core_ristretto255_scalar_sub(unsigned char *z, const unsigned char *x, const unsigned char *y);
+    scalar_sub = lib.crypto_core_ristretto255_scalar_sub
+    scalar_sub.restype = None
+    scalar_sub.argtypes = ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p
 
-        # void crypto_core_ristretto255_scalar_mul(unsigned char *z, const unsigned char *x, const unsigned char *y);
-        scalar_mul = lib.crypto_core_ristretto255_scalar_mul
-        scalar_mul.restype = None
-        scalar_mul.argtypes = ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p
-
-    except Exception:  # pragma: no cover
-        # Work around the fact that libsodium is not installed in the readthedocs build image
-        if "READTHEDOCS" not in environ:
-            raise
+    # void crypto_core_ristretto255_scalar_mul(unsigned char *z, const unsigned char *x, const unsigned char *y);
+    scalar_mul = lib.crypto_core_ristretto255_scalar_mul
+    scalar_mul.restype = None
+    scalar_mul.argtypes = ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p
 
 
 @dataclass(frozen=True, eq=False, repr=False)

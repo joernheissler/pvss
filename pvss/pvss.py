@@ -332,7 +332,7 @@ class Share(Asn1Object):
 
 class SharedSecret(Asn1Object):
     """
-    All shares of a shared secret, along with Zero Knowledge proof.
+    All shares of a shared secret, along with Zero-Knowledge proof.
     """
 
     asn1: _asn1.SharedSecret
@@ -574,34 +574,49 @@ class ReencryptedShare(Asn1Object):
         return self.pvss.shares.shares[self.idx - 1]
 
     def _validate(self) -> None:
-        """`
+        """
+        Verify Zero-Knowledge proof of the ReencryptedShare.
+
+        Raises:
+            ValueError: If verification failed.
         """
 
+        # Compute -c
         minus_c = -self.challenge
+
+        # Grab public key of share's sender.
         pub = self.share.pub
 
+        # Compute commitment for public key.
+        rand_pub = ((self.params.G[0] * self.params.G[1]) ** self.response_priv) * (
+            (pub.pub[0] * pub.pub[1]) ** minus_c
+        )
+
+        # Compute commitment for share.
         rand_share = (
             (self.elg_b ** self.response_priv)
             * (self.pvss.receiver_public_key.pub[0] ** self.response_v[0])
             * (self.pvss.receiver_public_key.pub[1] ** self.response_v[1])
         ) * (self.pvss.shares.shares[self.idx - 1].share ** minus_c)
 
-        rand_pub = ((self.params.G[0] * self.params.G[1]) ** self.response_priv) * (
-            (pub.pub[0] * pub.pub[1]) ** minus_c
-        )
+        # Compute commitment for ElGamal value.
         rand_elg_a = (
             (self.params.G[0] ** self.response_w[0]) * (self.params.G[1] ** self.response_w[1])
         ) * (self.elg_a ** minus_c)
+
+        # Compute commitment for Identity.
         rand_id = (
             (self.elg_a ** self.response_priv)
             * (self.params.G[0] ** self.response_v[0])
             * (self.params.G[1] ** self.response_v[1])
         )
 
+        # Compute challenge for Zero-Knowledge proof.
         challenge = ReencryptedChallenge.create(
             self.pvss, rand_pub, rand_share, rand_elg_a, rand_id
         )
 
+        # Verify that the digests match.
         if challenge.digest != self.digest:
             raise ValueError("Verification failed: could not compute same challenge")
 
@@ -619,18 +634,20 @@ class ReencryptedShare(Asn1Object):
             Re-encrypted share
         """
 
-        # Locate our share
+        # Locate our share.
         for idx, enc_share in enumerate(pvss.shares.shares, 1):
             if enc_share.pub == private_key.pub(enc_share.pub_name):
                 break
         else:
             raise ValueError("No matching public key found")
 
-        # decrypt our share
+        # Decrypt our share.
         share = enc_share.share ** private_key.priv.inv
 
-        # Reencrypt share with Elgamal encryption using the receiver's public key
+        # Choose random values.
         w = [pvss.params.pre_group.rand, pvss.params.pre_group.rand]
+
+        # Reencrypt share with ElGamal encryption using the receiver's public key.
         elg_a = (pvss.params.G[0] ** w[0]) * (pvss.params.G[1] ** w[1])
         elg_b = (
             share
@@ -638,27 +655,40 @@ class ReencryptedShare(Asn1Object):
             * (pvss.receiver_public_key.pub[1] ** w[1])
         )
 
+        # Compute helper variables.
         v = [-w[0] * private_key.priv, -w[1] * private_key.priv]
+
+        # Choose random pre-group values for the commitments.
+        kpi = pvss.params.pre_group.rand
         kv = (pvss.params.pre_group.rand, pvss.params.pre_group.rand)
         kw = (pvss.params.pre_group.rand, pvss.params.pre_group.rand)
-        kpi = pvss.params.pre_group.rand
 
+        # Compute commitment for public key.
+        rand_pub = (pvss.params.G[0] * pvss.params.G[1]) ** kpi
+
+        # Compute commitment for share.
         rand_share = (
             (elg_b ** kpi)
             * (pvss.receiver_public_key.pub[0] ** kv[0])
             * (pvss.receiver_public_key.pub[1] ** kv[1])
         )
-        rand_pub = (pvss.params.G[0] * pvss.params.G[1]) ** kpi
+
+        # Compute commitment for ElGamal value.
         rand_elg_a = (pvss.params.G[0] ** kw[0]) * (pvss.params.G[1] ** kw[1])
+
+        # Compute commitment for Identity.
         rand_id = (elg_a ** kpi) * (pvss.params.G[0] ** kv[0]) * (pvss.params.G[1] ** kv[1])
 
+        # Compute challenge for Zero-Knowledge proof.
         challenge = ReencryptedChallenge.create(pvss, rand_pub, rand_share, rand_elg_a, rand_id)
-
         c = challenge.challenge
+
+        # Compute responses for Zero-Knowledge proof.
         resp_priv = kpi + private_key.priv * c
         resp_v = (kv[0] + v[0] * c, kv[1] + v[1] * c)
         resp_w = (kw[0] + w[0] * c, kw[1] + w[1] * c)
 
+        # Assemble the values for the result.
         return ReencryptedShare.create(
             pvss, idx, elg_a, elg_b, resp_priv, resp_v, resp_w, challenge.digest
         )

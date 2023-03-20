@@ -8,22 +8,12 @@ import hmac
 from dataclasses import dataclass
 from fractions import Fraction
 from functools import cached_property
-from os import environ
 from typing import Optional, Union, cast
 
 from asn1crypto.algos import DHParameters
 from asn1crypto.core import Asn1Value, Integer
 from asn1crypto.pem import unarmor
-
-try:
-    from gmpy2 import invert, is_prime, legendre, mpz, powmod
-except ImportError:  # pragma: no cover
-    # Work around the fact that gmpy2 is not installed in the readthedocs build image
-    if "READTHEDOCS" not in environ:
-        raise
-else:
-    # Will be fixed by gmpy2 2.1
-    mpz_type = mpz if isinstance(mpz, type) else type(mpz(0))
+from gmpy2 import invert, is_prime, legendre, mpz, powmod
 
 from .asn1 import ImgGroupValue
 from .groups import ImageGroup, ImageValue, PgvOrInt
@@ -122,7 +112,7 @@ class QrGroup(ImageGroup):
             raise ValueError("(p - 1) / 2 not prime")
 
     def __call__(self, value: Union[int, mpz, Integer, Asn1Value]) -> QrValue:
-        if isinstance(value, (int, mpz_type)):
+        if isinstance(value, (int, mpz)):
             value %= self.p
             if value == 0:
                 raise ValueError("0 not in group")

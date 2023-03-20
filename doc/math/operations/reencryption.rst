@@ -56,7 +56,7 @@ hold. Compute:
   | :math:`e' = a_i^{k_x} \cdot G_0^{k_{v_0}} \cdot G_1^{k_{v_1}}`
 
 Compute the challenge for the zero knowledge proof using a cryptographic hash function
-:math:`c = H(G, g_0, g_1, G_0, G_1, XXX, {y_r}_0, {y_r}_1, y'_i, Y'_i, a'_i, e')`
+:math:`c = H(G_q, g_0, g_1, G_0, G_1, XXX, {y_r}_0, {y_r}_1, y'_i, Y'_i, a'_i, e')`
 
 Compute the response for the zero knowledge proof:
 
@@ -77,7 +77,7 @@ out:
 * :math:`Y'_i = b_i^{s_x} \cdot {y_r}_0^{s_{v_0}} \cdot {y_r}_1^{s_{v_1}} \cdot Y_i^{-c}`
 * :math:`a'_i = G_0^{s_{w_0}} \cdot G_1^{s_{w_1}} \cdot a_i^{-c}`
 * :math:`e'   = a_i^{s_x} \cdot G_0^{s_{v_0}} \cdot G_1^{s_{v_1}}`
-* :math:`c' = H(G, g_0, g_1, G_0, G_1, XXX, {y_r}_0, {y_r}_1, y'_i, Y'_i, a'_i, e')`
+* :math:`c' = H(G_q, g_0, g_1, G_0, G_1, XXX, {y_r}_0, {y_r}_1, y'_i, Y'_i, a'_i, e')`
 * Verify that :math:`c = c'`
 
 Completeness

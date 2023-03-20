@@ -52,6 +52,7 @@ pvss = 'pvss.cli:cli'
 
 [tool.poetry.extras]
 docs = [
+    "gmpy2",
     "sphinx",
     "sphinx-rtd-theme",
 ]
