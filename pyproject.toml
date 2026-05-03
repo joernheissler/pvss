@@ -6,16 +6,16 @@ build-backend = "poetry.core.masonry.api"
 ### Poetry ###
 ##############
 
-[tool.poetry]
+[project]
 name = "pvss"
 version = "0.2.0"
 description = "Public Verifiable Secret Splitting in Python"
-authors = ["Jörn Heissler <nosuchaddress@joern.heissler.de>"]
 license = "MIT"
 readme = "README.rst"
-homepage = "https://github.com/joernheissler/pvss"
-repository = "https://github.com/joernheissler/pvss"
-documentation = "https://pvss.1e8.de/"
+requires-python = ">=3.12"
+authors = [
+    {name = "Jörn Heissler"},
+]
 keywords = [
     "pvss",
     "secret sharing",
@@ -25,6 +25,27 @@ keywords = [
     "ristretto25519",
 ]
 
+dynamic = [
+    "classifiers",
+    "dependencies",
+]
+
+[project.urls]
+documentation = "https://pvss.1e8.de/"
+homepage = "https://github.com/joernheissler/pvss"
+repository = "https://github.com/joernheissler/pvss"
+
+[project.scripts]
+pvss = 'pvss.cli:cli'
+
+[project.optional-dependencies]
+docs = [
+    "gmpy2>=2.3,<3.0",
+    "sphinx>=9.1,<10.0",
+    "sphinx-rtd-theme>=3.1,<4.0",
+]
+
+[tool.poetry]
 classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Security :: Cryptography",
@@ -32,12 +53,12 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.12"
 click = "^8.3"
 asn1crypto = "^1.5"
-sphinx = { version = "^9.1", optional = true }
-sphinx-rtd-theme = { version = "^3.1", optional = true }
 gmpy2 = { version = "^2.3", optional = true }
+
+[tool.poetry.group.dev]
+optional = true
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^9.0"
@@ -48,15 +69,6 @@ mypy = "^1.20"
 black = "^26.3"
 isort = "^8.0"
 
-[tool.poetry.scripts]
-pvss = 'pvss.cli:cli'
-
-[tool.poetry.extras]
-docs = [
-    "gmpy2",
-    "sphinx",
-    "sphinx-rtd-theme",
-]
 
 #############
 ### Black ###
