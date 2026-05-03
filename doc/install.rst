@@ -4,7 +4,7 @@ Installation
 ============
 ``PVSS``'s dependencies are:
 
-* python (>= 3.7)
+* python (>= 3.12)
 * At least one of:
     + `libsodium <https://libsodium.org/>`_
       (>= 1.0.18, recommended, for `Ristretto255 <https://ristretto.group/>`_ group)

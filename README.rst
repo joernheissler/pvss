@@ -1,6 +1,6 @@
 Publicly Verifiable Secret Splitting in python
 ==============================================
-This project is a python (>= 3.7) implementation (library and CLI) of
+This project is a python (>= 3.12) implementation (library and CLI) of
 `Publicly Verifiable Secret Splitting (PVSS)
 <https://en.wikipedia.org/wiki/Publicly_Verifiable_Secret_Sharing>`_.
 
@@ -40,7 +40,7 @@ Installation
 ------------
 ``PVSS``'s dependencies are:
 
-* python (>= 3.7)
+* python (>= 3.12)
 * At least one of:
     + `libsodium <https://libsodium.org/>`_
       (>= 1.0.18, recommended, for `Ristretto255 <https://ristretto.group/>`_ group)

@@ -2,7 +2,7 @@
 
 Publicly Verifiable Secret Splitting in python
 ==============================================
-This project is a python (>= 3.7) implementation (library and CLI) of
+This project is a python (>= 3.12) implementation (library and CLI) of
 `Publicly Verifiable Secret Splitting (PVSS)
 <https://en.wikipedia.org/wiki/Publicly_Verifiable_Secret_Sharing>`_.
 
