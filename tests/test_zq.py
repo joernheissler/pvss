@@ -1,3 +1,4 @@
+from fractions import Fraction
 from typing import cast
 
 import pytest
@@ -23,6 +24,10 @@ def test_call() -> None:
     assert grp(20) == 20
     assert grp(200) == 41
     assert grp(PreGroupValue(20)) == 20
+
+    f = grp(Fraction(41, 20))
+    assert f == 10
+    assert f * 20 == 41
 
     with pytest.raises(ValueError, match="Not a valid group element"):
         grp(PreGroupValue(200))
