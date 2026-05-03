@@ -1,0 +1,4 @@
+/* Wrap table cells instead of causing horizontal scroll */
+.wy-table-responsive table td {
+    white-space: normal;
+}
