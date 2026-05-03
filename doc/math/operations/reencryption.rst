@@ -30,7 +30,7 @@ hold. This can't be proven directly because :math:`S_i` is secret.
 * | Eliminate :math:`S_i`:
   | :math:`Y_i = b_i^{x_i} \cdot {y_r}_0^{v_0} \cdot {y_r}_1^{v_1}`
 * | The user then needs to prove
-  | :math:`v_0 = -w_0x_i \wedge v_1 = -w_0x_i`
+  | :math:`v_0 = -w_0x_i \wedge v_1 = -w_1x_i`
   | which can't be done directly either.
 * | Instead, the user proves
   | :math:`e = a_i^{x_i} \cdot G_0^{v_0} \cdot G_1^{v_1}`
@@ -110,7 +110,7 @@ If :math:`e = a_i^{x_i} \cdot G_0^{v_0} \cdot G_1^{v_1}` holds, the prover can e
 
 Next, substitute :math:`a_i`:
 :math:`e = (G_0^{w_0} \cdot G_1^{w_1})^{x_i} \cdot G_0^{v_0} \cdot G_1^{v_1}
-= G_0^{w_0x_i + v_0} \cdot G_1^{w_0x_i + v_1}`.
+= G_0^{w_0x_i + v_0} \cdot G_1^{w_1x_i + v_1}`.
 
 The prover does not know the discrete logarithm of :math:`G_0` with regards to :math:`G_1` or vice versa,
 so we can assume that the prover chose :math:`v_0 = -w_0x_i \wedge v_1 = -w_1x_i`.
