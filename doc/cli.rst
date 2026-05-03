@@ -19,15 +19,15 @@ files inside ``datadir`` are public. All files outside of it are private.
 
 .. code-block:: console
 
-    (init)     $ pvss datadir genparams rst255 
-    (alice)    $ pvss datadir genuser Alice alice.key 
-    (boris)    $ pvss datadir genuser Boris boris.key 
-    (chris)    $ pvss datadir genuser Chris chris.key 
-    (dealer)   $ pvss datadir splitsecret 2 secret0.der 
-    (receiver) $ pvss datadir genreceiver recv.key 
-    (boris)    $ pvss datadir reencrypt boris.key 
-    (alice)    $ pvss datadir reencrypt alice.key 
-    (receiver) $ pvss datadir reconstruct recv.key secret1.der 
+    (init)     $ pvss datadir genparams rst255
+    (alice)    $ pvss datadir genuser Alice alice.key
+    (boris)    $ pvss datadir genuser Boris boris.key
+    (chris)    $ pvss datadir genuser Chris chris.key
+    (dealer)   $ pvss datadir splitsecret 2 secret0.der
+    (receiver) $ pvss datadir genreceiver recv.key
+    (boris)    $ pvss datadir reencrypt boris.key
+    (alice)    $ pvss datadir reencrypt alice.key
+    (receiver) $ pvss datadir reconstruct recv.key secret1.der
 
 ``secret0.der`` and ``secret1.der`` should compare equal.
 The *dealer* and *receiver* can encrypt an actual payload by using that file as a shared key.

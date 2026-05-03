@@ -215,8 +215,8 @@ Examples for Qr
     30 16
        06 0c  2b 06 01 04 01 83 ae 00 01 00 01 00
        02 06  03 16 ab 16 22 23
-   
-  
+
+
 .. _asn1.examples.qr.privatekey:
 
 ::

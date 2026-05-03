@@ -54,4 +54,4 @@ generator name is used as the key for the MAC operation. The input to the MAC is
 MAC. As initial value, the DER representation of the :ref:`system parameters
 <asn1.examples.qr.systemparameters>` is used. Finally, the concatenated MACs are interpreted as
 an integer and squared to get a quadratic residue, i.e.  a generator for the group. The system
-parameters depend on the prime :math:`p`, so there will be different generators for each prime. 
+parameters depend on the prime :math:`p`, so there will be different generators for each prime.

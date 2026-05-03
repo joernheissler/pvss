@@ -29,13 +29,13 @@ To achieve this, the dealer carries out the following steps:
 
   - | Encrypted share:
     | :math:`Y_i  = {y_i}_0^{f_0(i)}  {y_i}_1^{f_1(i)}`
-  
+
   - | Random commitment for :math:`Y_i`:
     | :math:`Y'_i = {y_i}_0^{{k_i}_0} {y_i}_1^{{k_i}_1}`
-  
+
   - | Share with alternative generators:
     | :math:`X_i  =     g_0^{f_0(i)}      g_1^{f_1(i)}`
-  
+
   - | Random commitment for :math:`X_i`:
     | :math:`X'_i =     g_0^{{k_i}_0}     g_1^{{k_i}_1}`
 
@@ -49,7 +49,7 @@ To achieve this, the dealer carries out the following steps:
   achieved e.g. by using ``sha2_256`` and treating the 256 bit output as an integer.
 
 * Compute the response for the zero knowledge proof for each user :math:`i`:
-  
+
      - :math:`{s_i}_0 = {k_i}_0 + c f_0(i)`
      - :math:`{s_i}_1 = {k_i}_1 + c f_1(i)`
 
