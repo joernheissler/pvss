@@ -8,7 +8,7 @@ build-backend = "poetry.core.masonry.api"
 
 [project]
 name = "pvss"
-version = "0.2.0"
+version = "0.3.0"
 description = "Public Verifiable Secret Splitting in Python"
 license = "MIT"
 readme = "README.rst"

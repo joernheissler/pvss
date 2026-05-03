@@ -5,11 +5,13 @@ Changelog
 
 .. _changelog.0.3.0:
 
-0.3.0 - xxxx-xx-xx
+0.3.0 - 2026-05-03
 ------------------
-.. note:: This version is not yet released and is under active development.
 
 * Improve documentation.
+* Add missing test case (=> 100% coverage).
+* Upgrade dependencies.
+
 
 .. _changelog.0.2.0:
 
