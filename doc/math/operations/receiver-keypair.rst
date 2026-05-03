@@ -8,4 +8,4 @@ The recipient generates a private key :math:`x_r \in Z_q^*` and the correspondin
 The private key is kept private and the public key is published.
 
 If the following two operations are executed quickly, the private key should be
-kept in ephemeral storage to reduce the risk of subsequential leakage.
+kept in ephemeral storage to reduce the risk of subsequent leakage.

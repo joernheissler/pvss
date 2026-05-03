@@ -40,6 +40,6 @@ The ``datadir`` is made up of:
 
 * ``parameters`` - Cryptographic group and other parameters (``SystemParameters``).
 * ``users`` - Directory with random file names for each user public key (``PublicKey``).
-* ``shares`` - Shared of the secret (``SharedSecret``).
+* ``shares`` - Shares of the secret (``SharedSecret``).
 * ``receiver``  - Receiver's public key (``PublicKey``).
 * ``reencrypted`` - Directory with random file names for re-encrypted shares (``ReencryptedShare``).

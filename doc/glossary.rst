@@ -35,7 +35,7 @@ Glossary
        Operation which takes reencrypted shares, decrypts them with the receiver's private key and outputs the secret.
    
    Secret Splitting
-       Operation which generated a random secret, splits it in multiple shares and encrypts those shares with the users' public keys.
+       Operation which generates a random secret, splits it in multiple shares and encrypts those shares with the users' public keys.
    
    Share
        One part of the Secret, encrypted with a user's public key.
@@ -44,4 +44,4 @@ Glossary
        Operation that a user carries out to decrypt a share and re-encrypt it with the receiver's public key.
    
    User
-       An entity with a key pair which receives one of the encrypted shares and can re-encrypt it with the reveiver's public key.
+       An entity with a key pair which receives one of the encrypted shares and can re-encrypt it with the receiver's public key.

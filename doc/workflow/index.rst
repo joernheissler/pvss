@@ -2,7 +2,7 @@
 
 Protocol Workflow
 =================
-The PVSS protocol consists of multiple steps. Each step yields one or multiple messsages that
+The PVSS protocol consists of multiple steps. Each step yields one or multiple messages that
 need to be available to the next steps.
 
 This chapter explains the implementation details.

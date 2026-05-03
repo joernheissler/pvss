@@ -8,7 +8,7 @@ Also choose four distinct generators :math:`g_0,g_1,G_0,G_1` for it.
 
 No party must know the discrete logarithm of any generator with respect to any other. Therefore those
 generators must be picked from :math:`G_q` using a public procedure which follows the concept of
-`nothing-up-my-sleeve <https://en.wikipedia.org/wiki/Nothing-up-my-sleeve_number>`_, e.g. by appying
+`nothing-up-my-sleeve <https://en.wikipedia.org/wiki/Nothing-up-my-sleeve_number>`_, e.g. by applying
 a cryptographic hash function to sensible input values.
 
 The chosen group and generators are public.

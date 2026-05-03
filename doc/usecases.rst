@@ -43,9 +43,9 @@ then wiped from the receiver's memory.
 
 Backup of arbitrary data
 ------------------------
-Similarly, arbitrary data can be backupped securely. For each new backup job, PVSS is used to
+Similarly, arbitrary data can be backed-up securely. For each new backup job, PVSS is used to
 create and split a new random secret which is used to symmetrically encrypt (e.g. AES-GCM) the
-backupped data.  The encrypted data (along with the PVSS files) is then stored with high
+backed-up data.  The encrypted data (along with the PVSS files) is then stored with high
 durability in mind.
 
 For restoring the data, any :math:`1 < t < n` of the users cooperate to reassemble the
