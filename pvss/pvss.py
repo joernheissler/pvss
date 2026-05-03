@@ -257,7 +257,8 @@ class Secret(Asn1Object):
 
         if len(pvss.reencrypted_shares) < len(pvss.shares.coefficients):
             raise Exception(
-                f"Need at least {len(pvss.shares.coefficients)} shares, only got {len(pvss.reencrypted_shares)}"
+                f"Need at least {len(pvss.shares.coefficients)} shares, "
+                f"only got {len(pvss.reencrypted_shares)}"
             )
 
         shares = {

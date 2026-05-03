@@ -1,5 +1,6 @@
 """
-Binding to `libsodium <https://libsodium.org/>`_ to use `Ristretto255 <https://ristretto.group/>`_ for group operations.
+Binding to `libsodium <https://libsodium.org/>`_ to use
+`Ristretto255 <https://ristretto.group/>`_ for group operations.
 """
 
 from __future__ import annotations
@@ -97,7 +98,8 @@ class _Lib:
     point_from_hash.restype = ctypes.c_int
     point_from_hash.argtypes = ctypes.c_char_p, ctypes.c_char_p
 
-    # int crypto_scalarmult_ristretto255(unsigned char *q, const unsigned char *n, const unsigned char *p);
+    # int crypto_scalarmult_ristretto255(unsigned char *q, const unsigned char *n, const
+    #                                    unsigned char *p);
     point_mul = lib.crypto_scalarmult_ristretto255
     point_mul.restype = ctypes.c_int
     point_mul.argtypes = ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p
@@ -107,12 +109,14 @@ class _Lib:
     point_base_mul.restype = ctypes.c_int
     point_base_mul.argtypes = ctypes.c_char_p, ctypes.c_char_p
 
-    # int crypto_core_ristretto255_add(unsigned char *r, const unsigned char *p, const unsigned char *q);
+    # int crypto_core_ristretto255_add(unsigned char *r, const unsigned char *p,
+    #                                  const unsigned char *q);
     point_add = lib.crypto_core_ristretto255_add
     point_add.restype = ctypes.c_int
     point_add.argtypes = ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p
 
-    # int crypto_core_ristretto255_sub(unsigned char *r, const unsigned char *p, const unsigned char *q);
+    # int crypto_core_ristretto255_sub(unsigned char *r, const unsigned char *p,
+    #                                  const unsigned char *q);
     point_sub = lib.crypto_core_ristretto255_sub
     point_sub.restype = ctypes.c_int
     point_sub.argtypes = ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p
@@ -137,22 +141,26 @@ class _Lib:
     scalar_negate.restype = None
     scalar_negate.argtypes = ctypes.c_char_p, ctypes.c_char_p
 
-    # void crypto_core_ristretto255_scalar_complement(unsigned char *comp, const unsigned char *s);
+    # void crypto_core_ristretto255_scalar_complement(unsigned char *comp,
+    #                                                 const unsigned char *s);
     scalar_complement = lib.crypto_core_ristretto255_scalar_complement
     scalar_complement.restype = None
     scalar_complement.argtypes = ctypes.c_char_p, ctypes.c_char_p
 
-    # void crypto_core_ristretto255_scalar_add(unsigned char *z, const unsigned char *x, const unsigned char *y);
+    # void crypto_core_ristretto255_scalar_add(unsigned char *z, const unsigned char *x,
+    #                                          const unsigned char *y);
     scalar_add = lib.crypto_core_ristretto255_scalar_add
     scalar_add.restype = None
     scalar_add.argtypes = ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p
 
-    # void crypto_core_ristretto255_scalar_sub(unsigned char *z, const unsigned char *x, const unsigned char *y);
+    # void crypto_core_ristretto255_scalar_sub(unsigned char *z, const unsigned char *x,
+    #                                          const unsigned char *y);
     scalar_sub = lib.crypto_core_ristretto255_scalar_sub
     scalar_sub.restype = None
     scalar_sub.argtypes = ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p
 
-    # void crypto_core_ristretto255_scalar_mul(unsigned char *z, const unsigned char *x, const unsigned char *y);
+    # void crypto_core_ristretto255_scalar_mul(unsigned char *z, const unsigned char *x,
+    #                                          const unsigned char *y);
     scalar_mul = lib.crypto_core_ristretto255_scalar_mul
     scalar_mul.restype = None
     scalar_mul.argtypes = ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p
@@ -188,7 +196,8 @@ class Ristretto255Group(ImageGroup):
 
     def from_hash(self, value: bytes) -> Ristretto255Point:
         """
-        Generate a point from from up to 64 bytes. Those would usually come out of a hash function.
+        Generate a point from from up to 64 bytes. Those would usually come out of a hash
+        function.
         """
 
         buf = ctypes.create_string_buffer(bytes(value), 64)

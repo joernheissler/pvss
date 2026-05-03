@@ -7,12 +7,16 @@ def test_cli() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
         with open("dhparams.pem", "wt") as fp:
-            fp.writelines([
-                "-----BEGIN DH PARAMETERS-----\n",
-                "MA4CCQDxE8ZyVvUx0wIBAg==\n",
-                "-----END DH PARAMETERS-----\n",
-            ])
-        runner.invoke(cli, ['data', 'genparams', 'qr', "dhparams.pem"], catch_exceptions=False, color=True)
+            fp.writelines(
+                [
+                    "-----BEGIN DH PARAMETERS-----\n",
+                    "MA4CCQDxE8ZyVvUx0wIBAg==\n",
+                    "-----END DH PARAMETERS-----\n",
+                ]
+            )
+        runner.invoke(
+            cli, ["data", "genparams", "qr", "dhparams.pem"], catch_exceptions=False, color=True
+        )
     with runner.isolated_filesystem():
         for cmd in [
             ["genparams", "rst255"],
@@ -25,4 +29,4 @@ def test_cli() -> None:
             ["reencrypt", "alice.key"],
             ["reconstruct", "recv.key", "secret1.der"],
         ]:
-            runner.invoke(cli, ['data'] + cmd, catch_exceptions=False, color=True)
+            runner.invoke(cli, ["data"] + cmd, catch_exceptions=False, color=True)

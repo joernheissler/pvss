@@ -2,7 +2,8 @@
 
 Data structures
 ===============
-PVSS is a protocol between multiple parties who must exchange a number of messages. Those messages are
+PVSS is a protocol between multiple parties who must exchange a number of messages.
+Those messages are
 `DER <https://en.wikipedia.org/wiki/X.690#DER_encoding>`_ encoded
 `ASN.1 <https://en.wikipedia.org/wiki/Abstract_Syntax_Notation_One>`_ structures.
 This format was chosen because it's well defined and has little overhead. Also,
@@ -38,7 +39,8 @@ prime, the messages are about 12-16 times as large.
 
 Object Identifiers
 ------------------
-Prefix: ``1.3.6.1.4.1.55040.1.0`` (iso.org.dod.internet.private.enterprise.heissler-informatik.floss.pvss)
+Prefix: ``1.3.6.1.4.1.55040.1.0``
+(iso.org.dod.internet.private.enterprise.heissler-informatik.floss.pvss)
 
 Parent: https://github.com/joernheissler/oids
 

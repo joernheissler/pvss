@@ -9,5 +9,6 @@ the receiver can reconstruct the secret:
 * | Decrypt each re-encrypted share:
   | :math:`S_i = b_i \cdot \frac{1}{a_i^{x_r}}`
 * | Reconstruct the secret:
-  | :math:`S = \prod\limits_i S_i^{\lambda_i},~ \lambda_i = \prod\limits_{i', i' \ne i} \frac{i'}{i' - i}`
+  | :math:`S = \prod\limits_i S_i^{\lambda_i},~ \lambda_i
+    = \prod\limits_{i', i' \ne i} \frac{i'}{i' - i}`
   | where :math:`i, i'` are the user indices for all re-encrypted shares.

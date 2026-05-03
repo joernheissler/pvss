@@ -30,7 +30,8 @@ def create_qr_params(pvss: Pvss, params: Union[int, str, bytes]) -> bytes:
 
     Args:
         pvss: Pvss object with public values
-        params: if int, must be a safe prime, otherwise must be a DH params file with a safe prime.
+        params: if int, must be a safe prime, otherwise must be a DH params file with a
+        safe prime.
 
     Returns:
         DER encoded QR system parameters.

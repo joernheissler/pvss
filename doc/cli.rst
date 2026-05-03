@@ -42,4 +42,5 @@ The ``datadir`` is made up of:
 * ``users`` - Directory with random file names for each user public key (``PublicKey``).
 * ``shares`` - Shares of the secret (``SharedSecret``).
 * ``receiver``  - Receiver's public key (``PublicKey``).
-* ``reencrypted`` - Directory with random file names for re-encrypted shares (``ReencryptedShare``).
+* ``reencrypted`` - Directory with random file names for re-encrypted shares
+  (``ReencryptedShare``).

@@ -13,7 +13,10 @@ from pvss.zq import ZqGroup
 
 def test_params() -> None:
     der = bytes.fromhex("3011060c2b0601040183ae0001000100020117")
-    params_pem = "foobar\n-----BEGIN DH PARAMETERS-----\nMAYCARcCAQI=\n-----END DH PARAMETERS-----\nspam\n"
+    params_pem = (
+        "foobar\n-----BEGIN DH PARAMETERS-----\nMAYCARcCAQI=\n"
+        "-----END DH PARAMETERS-----\nspam\n"
+    )
 
     pvss = Pvss()
     assert der == create_qr_params(pvss, 23)

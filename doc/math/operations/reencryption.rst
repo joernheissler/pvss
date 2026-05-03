@@ -2,11 +2,12 @@
 
 Share reencryption
 ------------------
-A user can decrypt their share and use ElGamal Encryption to re-encrypt it with the receiver's public key.
-The user needs to produce a non-interactive zero knowledge proof to show that the reencrypted secret was correctly
-computed.
+A user can decrypt their share and use ElGamal Encryption to re-encrypt it with the receiver's
+public key. The user needs to produce a non-interactive zero knowledge proof to show that the
+reencrypted secret was correctly computed.
 
-* | Decrypt share by raising it to power of the multiplicative inverse of the user's private key:
+* | Decrypt share by raising it to power of the multiplicative inverse of the user's
+    private key:
   | :math:`S_i = Y_i^{\frac{1}{x_i}}`
 
 * | Choose two random values:
@@ -16,7 +17,8 @@ computed.
   | :math:`a_i = G_0^{w_0} \cdot G_1^{w_1}`
   | :math:`b_i = S_i \cdot {y_r}_0^{w_0} \cdot {y_r}_1^{w_1}`
 
-Next, the user needs to prove knowledge of the secret values :math:`x_i, S_i, w_0, w_1` such that
+Next, the user needs to prove knowledge of the secret values :math:`x_i, S_i, w_0, w_1`
+such that
 
 * :math:`y_i = {y_i}_0 \cdot {y_i}_1 = (G_0 \cdot G_1)^{x_i}`
 * :math:`Y_i = S_i^{x_i}`
@@ -86,12 +88,14 @@ An honest prover can always carry out the operations described above to convince
 
 Soundness
 ~~~~~~~~~
-Assuming a random oracle model, the hash function might return the value :math:`c_0` and in a different universe
-it might return :math:`c_1` for the same input, where :math:`c_1 = c_0 + 1`. If the prover is somehow able to generate
-valid :math:`{s_{x_i}}_0` and :math:`{s_{x_i}}_1` with high probability, he can e.g. compute
+Assuming a random oracle model, the hash function might return the value :math:`c_0` and in a
+different universe it might return :math:`c_1` for the same input, where :math:`c_1 = c_0 + 1`.
+If the prover is somehow able to generate valid :math:`{s_{x_i}}_0` and :math:`{s_{x_i}}_1` with
+high probability, he can e.g. compute
 :math:`{s_{x_i}}_1 - {s_{x_i}}_0 = (k_{x_i} + (c_0 + 1) x_i) - (k_{x_i} + c_0 x_i) = x_i`.
-The same idea is applied to the other secret variables. I.e. even if a "lucky" prover does not know the secret
-variables, he could easily compute them. We don't believe in such luck but assume that the prover knows the secrets.
+The same idea is applied to the other secret variables. I.e. even if a "lucky" prover does not
+know the secret variables, he could easily compute them. We don't believe in such luck but
+assume that the prover knows the secrets.
 
 This proves knowledge of values :math:`x_i, v_0, v_1, w_0, w_1` such that:
 
@@ -99,23 +103,28 @@ This proves knowledge of values :math:`x_i, v_0, v_1, w_0, w_1` such that:
  * :math:`a_i = G_0^{w_0} \cdot G_1^{w_1}`
  * :math:`Y_i = b_i^{x_i} \cdot {y_r}_0^{v_0} \cdot {y_r}_1^{v_1}`
 
-To prove that :math:`e = a_i^{x_i} \cdot G_0^{v_0} \cdot G_1^{v_1}`, remember that the verifier computes :math:`e'`
-and includes it in the hash input.
+To prove that :math:`e = a_i^{x_i} \cdot G_0^{v_0} \cdot G_1^{v_1}`, remember that the verifier
+computes :math:`e'` and includes it in the hash input.
 
 :math:`e' = a_i^{s_{x_1}} \cdot G_0^{s_{v_0}} \cdot G_1^{s_{v_1}}
 = a_i^{k_{x_i} + cx_i} \cdot G_0^{k_{v_0} + cv_0} \cdot G_1^{k_{v_1} + cv_1}
-= (a_i^{x_i} \cdot G_0^{v_0} \cdot G_1^{v_1})^c \cdot (a_i^{k_{x_i}} \cdot G_0^{k_{v_0}} \cdot G_1^{k_{v_1}})`
+= (a_i^{x_i} \cdot G_0^{v_0} \cdot G_1^{v_1})^c \cdot (a_i^{k_{x_i}}
+  \cdot G_0^{k_{v_0}} \cdot G_1^{k_{v_1}})`
 
-If :math:`e = a_i^{x_i} \cdot G_0^{v_0} \cdot G_1^{v_1}` holds, the prover can easily compute :math:`e' = a_i^{k_{x_i}} \cdot G_0^{k_{v_0}} \cdot G_1^{k_{v_1}}` which does not depend on :math:`c`. Otherwise, the value of :math:`e'` would depend on :math:`c` and vice versa. It may be possible to find such a pair, but it's infeasible. So we assume that it does hold.
+If :math:`e = a_i^{x_i} \cdot G_0^{v_0} \cdot G_1^{v_1}` holds, the prover can easily compute
+:math:`e' = a_i^{k_{x_i}} \cdot G_0^{k_{v_0}} \cdot G_1^{k_{v_1}}` which does not depend on
+:math:`c`. Otherwise, the value of :math:`e'` would depend on :math:`c` and vice versa.
+It may be possible to find such a pair, but it's infeasible. So we assume that it does hold.
 
 Next, substitute :math:`a_i`:
 :math:`e = (G_0^{w_0} \cdot G_1^{w_1})^{x_i} \cdot G_0^{v_0} \cdot G_1^{v_1}
 = G_0^{w_0x_i + v_0} \cdot G_1^{w_1x_i + v_1}`.
 
-The prover does not know the discrete logarithm of :math:`G_0` with regards to :math:`G_1` or vice versa,
-so we can assume that the prover chose :math:`v_0 = -w_0x_i \wedge v_1 = -w_1x_i`.
+The prover does not know the discrete logarithm of :math:`G_0` with regards to :math:`G_1` or
+vice versa, so we can assume that the prover chose :math:`v_0 = -w_0x_i \wedge v_1 = -w_1x_i`.
 
-It follows that :math:`Y_i^{\frac{1}{x_i}} = b_i \cdot {y_r}_0^{-w_0} \cdot {y_r}_1^{-w_1} = S_i`.
+It follows that
+:math:`Y_i^{\frac{1}{x_i}} = b_i \cdot {y_r}_0^{-w_0} \cdot {y_r}_1^{-w_1} = S_i`.
 
 Zero Knowledge
 ~~~~~~~~~~~~~~

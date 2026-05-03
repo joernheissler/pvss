@@ -80,8 +80,8 @@ Notation used in formulas
    * - :math:`G_q`
      - :math:`G_q`
      - :math:`G_q`
-     - Finite cyclic group of prime order :math:`q`, used as the image group for all group isomorphisms.
-       Computing discrete logarithms in this group must be infeasible.
+     - Finite cyclic group of prime order :math:`q`, used as the image group for all group
+       isomorphisms. Computing discrete logarithms in this group must be infeasible.
 
    * - :math:`g_0`
      - :math:`g`
@@ -141,7 +141,8 @@ Notation used in formulas
    * - :math:`t`
      - :math:`t`
      - :math:`t`
-     - Size of *qualified subset* of users able to reconstruct the secret, :math:`1 \leq t \leq n`.
+     - Size of *qualified subset* of users able to reconstruct the secret,
+       :math:`1 \leq t \leq n`.
 
    * - :math:`v_{0,1}`
      -

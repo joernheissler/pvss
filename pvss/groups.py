@@ -240,7 +240,8 @@ class ImageValue(ABC):
         self, other: Union[PgvOrInt, Fraction], modulo: Optional[int] = None
     ) -> ImageValue:
         """
-        Implement a ** b and pow(a, b), i.e. the repeated application of the group operation to `a`.
+        Implement a ** b and pow(a, b), i.e. the repeated application of the group
+        operation to `a`.
 
         Args:
             other: exponent
